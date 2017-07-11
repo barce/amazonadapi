@@ -10,7 +10,7 @@ setup(
       'future',
     ],
     scripts=[],
-    url='http://pypi.python.org/pypi/amazonadapi/',
+    url='https://github.com/barce/amazonadapi',
     license='LICENSE',
     description='A client for interacting with the Amazon Ad API.',
     long_description=open('README.txt').read(),

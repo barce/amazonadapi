@@ -19,7 +19,7 @@ except ImportError:
     use_environment_variables = True
 
 
-class AOLClient:
+class AmazonClient:
   client_id = None
   client_secret = None
   api_key = None
@@ -36,100 +36,36 @@ class AOLClient:
 
 
   def __init__(self):
-    self.client_id = os.environ['AOP_CLIENT_ID']
-    self.client_secret = os.environ['AOP_CLIENT_SECRET']
-    self.api_key = os.environ['AOP_API_KEY']
-    self.id_host = os.environ['AOP_ID_HOST']
-    self.one_host = os.environ['AOP_ONE_HOST']
+    self.client_id = os.environ['AMZN_AD_CLIENT']
+    self.client_secret = os.environ['AMZN_AD_CLIENT_SECRET']
+    self.auth_url = os.environ['AMZN_AUTH_URL']
 
   def connect(self):
-    self.set_payload()
-    self.encode_payload()
-    self.set_oauth_url()
-    self.set_payload_url()
-    self.set_headers()
-    return self.get_token()
+    get_token_url = "https://api.amazon.com/auth/o2/token"
+    payload = "grant_type=authorization_code&code=" + self.amzn_code + "&redirect_uri=https%3A//www.accuenplatform.com/accounts/login/%3Fnext%3D/backstage/api/advertiser&client_id=" + self.client_id + "&client_secret=" + self.client_secret
+    headers = {'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': "Basic " + self.base64auth().decode('utf-8')}
+    print(get_token_url)
+    print(payload)
+    print(headers)
+    r = requests.post(get_token_url, data=payload, headers=headers)
+    results_json = r.json()
+    return results_json
 
-  def show_config(self):
-    print(self.client_id)
-    print(self.client_secret)
-    print(self.api_key)
-    print(self.id_host)
-    print(self.one_host)
-
-
-  def set_payload(self):
-    now = int(time.time())
-    self.payload = {
-      "aud": "https://{0}/identity/oauth2/access_token?realm=aolcorporate/aolexternals".format(self.id_host),
-      "iss": self.client_id,
-      "sub": self.client_id,
-      "exp": now + 3600,
-      "iat": now ,
-    }
-    return self.payload
-
-  def encode_payload(self):
-    self.encoded_payload = jwt.encode(self.payload, self.client_secret, algorithm='HS256')
-    return self.encoded_payload
+  def get_amazon_auth_url():
+    print("Go to this URL:")
+    print(self.auth_url)
 
 
-  def set_oauth_url(self):
-    self.oauth_url = "https://{0}/identity/oauth2/access_token".format(self.id_host)
+  def cli_auth_dance(self):
+    self.get_amazon_auth_url()
+    if sys.version_info < (3, 0):
+      self.amzn_code = raw_input("Enter Amazon auth code: ")
+    else:
+      self.amzn_code = input("Enter Amazon auth code: ")
 
-  def set_payload_url(self):
-    self.payload_url = "grant_type=client_credentials&scope=one&realm=aolcorporate/aolexternals&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={0}".format(bytes.decode(self.encoded_payload))
-    return self.payload_url
-
-  def set_headers(self):
-    self.headers = {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Accept": "application/json"
-    }
-
-  def get_token(self):
-    response = requests.post(self.oauth_url, headers=self.headers, data=self.payload_url)
-    json_response = json.loads(response.text)
-    print(json_response)
-    self.token = json_response['access_token']
-    self.authorized_headers = {'Authorization': "Bearer " + self.token}
-
-    self.authorized_headers['Content-Type'] = 'application/json'
-    self.authorized_headers['x-api-key'] = self.api_key
-
-  def get_organizations(self):
-    url = "https://{0}/advertiser/organization-management/v1/organizations/".format(self.one_host)
-    response = requests.get(url, headers=self.authorized_headers, verify=False)
-    return json.loads(response.text)
-
-  def get_campaigns(self, org_id=0):
-    url = "https://{0}/advertiser/campaign-management/v1/organizations/{1}/advertisers/campaigns".format(self.one_host, org_id)
-    response = requests.get(url, headers=self.authorized_headers, verify=False)
-    return json.loads(response.text)
-
-
-  def get_campaigns_by_advertiser(self, org_id=0, ad_id=0):
-    url = "https://{0}/advertiser/campaign-management/v1/organizations/{1}/advertisers/{2}/campaigns".format(self.one_host, org_id, ad_id)
-    response = requests.get(url, headers=self.authorized_headers, verify=False)
-    return json.loads(response.text)
-
-  def get_campaigns_by_advertiser_by_campaign(self, org_id=0, ad_id=0, campaign_id=0):
-    url = "https://{0}/advertiser/campaign-management/v1/organizations/{1}/advertisers/{2}/campaigns/{3}".format(self.one_host, org_id, ad_id, campaign_id)
-    response = requests.get(url, headers=self.authorized_headers, verify=False)
-    return json.loads(response.text)
-
-  def get_tactics_by_campaign(self, org_id=0, ad_id=0, campaign_id=0):
-    url = "https://{0}/advertiser/campaign-management/v1/organizations/{1}/advertisers/{2}/campaigns/{3}/tactics".format(self.one_host, org_id, ad_id, campaign_id)
-    response = requests.get(url, headers=self.authorized_headers, verify=False)
-    return json.loads(response.text)
-
-  def get_tactic_by_id(self, org_id=0, ad_id=0, campaign_id=0, tactic_id=0):
-    url = "https://{0}/advertiser/campaign-management/v1/organizations/{1}/advertisers/{2}/campaigns/{3}/tactics/{4}".format(self.one_host, org_id, ad_id, campaign_id, tactic_id)
-    response = requests.get(url, headers=self.authorized_headers, verify=False)
-    return json.loads(response.text)
-
-  def get_creative_assignments(self, org_id=0, ad_id=0, campaign_id=0, tactic_id=0):
-    url = "https://{0}/advertiser/campaign-management/v1/organizations/{1}/advertisers/{2}/campaigns/{3}/tactics/{4}/creativeassignments".format(self.one_host, org_id, ad_id, campaign_id, tactic_id)
-    response = requests.get(url, headers=self.authorized_headers, verify=False)
-    print("{}".format(json.loads(response.text)))
-    return json.loads(response.text)
+    print("Auth code, {}, entered.".format(self.amzn_code))
+    self.raw_token_results = self.connect()
+    print("raw_token_results:")
+    print(self.raw_token_results)
+    self.token = ''
+        

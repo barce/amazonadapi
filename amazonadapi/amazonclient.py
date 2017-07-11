@@ -36,7 +36,7 @@ class AmazonClient:
 
 
   def __init__(self):
-    self.client_id = os.environ['AMZN_AD_CLIENT']
+    self.client_id = os.environ['AMZN_AD_CLIENT_ID']
     self.client_secret = os.environ['AMZN_AD_CLIENT_SECRET']
     self.auth_url = os.environ['AMZN_AUTH_URL']
 
@@ -51,7 +51,7 @@ class AmazonClient:
     results_json = r.json()
     return results_json
 
-  def get_amazon_auth_url():
+  def get_amazon_auth_url(self):
     print("Go to this URL:")
     print(self.auth_url)
 

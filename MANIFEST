@@ -2,7 +2,7 @@
 README.txt
 setup.cfg
 setup.py
-aopclient/__init__.py
-aopclient/aolclient.py
-aopclient/tests/__init__.py
-aopclient/tests/test_builder.py
+amazonadapi/__init__.py
+amazonadapi/amazonclient.py
+amazonadapi/tests/__init__.py
+amazonadapi/tests/test_builder.py

@@ -33,6 +33,7 @@ class AmazonClient:
   headers = None
   authorized_headers = None
   token = None
+  profile_id = None
 
 
   def __init__(self):
@@ -77,5 +78,23 @@ class AmazonClient:
     r = requests.get(url, headers=headers)
     results_json = r.json()
     return results_json
-      
 
+  # -H Authorization: Bearer self.token
+  # -H Host: advertising-api.amazon
+  # -H Amazon-Advertising-API-Scope: PROFILE_ID
+  # -H Content-Type: application/json
+  # url: https://advertising-api.amazon.com/da/v1/orders/ORDER_ID
+  def get_order(self, order_id):
+    url = "https://advertising-api.amazon.com/da/v1/orders/" + order_id
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': 'advertising-api.amazon', 'Amazon-Advertising-API-Scope': self.profile_id}
+    r = requests.get(url, headers=headers)
+    results_json = r.json()
+    return results_json
+
+  def get_line_item(self, line_item_id):
+    url = "https://advertising-api.amazon.com/da/v1/line_items/" + line_item_id
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': 'advertising-api.amazon', 'Amazon-Advertising-API-Scope': self.profile_id}
+    r = requests.get(url, headers=headers)
+    results_json = r.json()
+    return results_json
+      

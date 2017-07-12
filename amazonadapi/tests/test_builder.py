@@ -1,10 +1,10 @@
 from unittest import TestCase
 
-import aopclient
-from aopclient import AOLClient
+import amazonadapi
+from amazonadapi import AmazonClient
 
 
-class TestAOLClient(TestCase):
+class TestAmazonClient(TestCase):
     def test_config(self):
-        b = aopclient.AOLClient()
-        self.assertTrue(isinstance(b, AOLClient))
+        b = amazonadapi.AmazonClient()
+        self.assertTrue(isinstance(b, AmazonClient))

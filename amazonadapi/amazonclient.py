@@ -33,12 +33,14 @@ class AmazonClient:
   headers = None
   authorized_headers = None
   token = None
+  refresh_token = None
   profile_id = None
 
 
   def __init__(self):
     self.client_id = os.environ['AMZN_AD_CLIENT_ID']
     self.client_secret = os.environ['AMZN_AD_CLIENT_SECRET']
+    # self.auth_url = "https://www.amazon.com/ap/oa?client_id=" + self.client_id + "&scope=advertising::campaign_management&repsonse_type=code&redirect_url=https%3A//www.accuenplatform.com/accounts/login/%3Fnext%3D/backstage/api/advertiser"
     self.auth_url = os.environ['AMZN_AUTH_URL']
 
   def connect(self):
@@ -69,8 +71,18 @@ class AmazonClient:
     # print("raw_token_results:")
     # print(self.raw_token_results)
     self.token = self.raw_token_results['access_token']
+    self.refresh_token = self.raw_token_results['refresh_token']
     return self.token
-        
+
+  def refresh_token(self):
+    get_token_url = "https://api.amazon.com/auth/o2/token"
+    payload = "grant_type=refresh_token&client_id=" + self.client_id + "&client_secret=" + self.client_secret + "&refresh_token=" + self.refresh_token
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    r = requests.post(get_token_url, data=payload, headers=headers)
+    results_json = r.json()
+    self.token = results_json['access_token']
+    return results_json
+
   # curl -X GET -H "Content-Type:application/json" -H "Authorization: Bearer $AMZN_TOKEN" https://advertising-api.amazon.com/v1/profiles
   def get_profiles(self):
     url = "https://advertising-api.amazon.com/v1/profiles"

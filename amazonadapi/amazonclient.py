@@ -10,6 +10,7 @@ import requests
 import time
 import os
 import sys
+from urllib3._collections import HTTPHeaderDict
 
 use_environment_variables = None
 
@@ -18,6 +19,16 @@ try:
 except ImportError:
     use_environment_variables = True
 
+class AmazonOrder:
+  advertiserId = None
+  name = None
+  startDateTime = None
+  endDateTime = None
+  status = None
+
+
+  def __init__(self):
+    self.status = 'INACTIVE'
 
 class AmazonClient:
   client_id = None
@@ -110,3 +121,21 @@ class AmazonClient:
     results_json = r.json()
     return results_json
       
+  def create_order(self, order):
+    url = "https://advertising-api.amazon.com/da/v1/orders/"
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': 'advertising-api.amazon', 'Amazon-Advertising-API-Scope': self.profile_id}
+
+    data = {"object": {
+        "advertiserId": {
+            "value": order.advertiserId
+        },
+        "name": order.name,
+        "startDateTime": order.startDatetime,
+        "endDateTime": order.endDateTime,
+        "deliveryActiviationStatus": order.status
+        }
+    }
+    
+    response = requests.post(url, headers=self.authorized_headers, verify=False, data=data)
+    print("{}".format(json.loads(response.text)))
+    return json.loads(response.text)

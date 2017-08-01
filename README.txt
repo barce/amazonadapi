@@ -6,3 +6,4 @@ Sample code:
 
 from amazonadapi import AmazonClient
 client = AmazonClient()
+

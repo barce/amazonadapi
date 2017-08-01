@@ -30,6 +30,17 @@ class AmazonOrder:
   def __init__(self):
     self.status = 'INACTIVE'
 
+class AmazonLineItem:
+  orderId = None
+  name = None
+  type = None
+  startDateTime = None
+  endDateTime = None
+  status = None
+
+  def __init__(self):
+    self.status = 'INACTIVE'
+
 class AmazonClient:
   client_id = None
   client_secret = None
@@ -139,3 +150,24 @@ class AmazonClient:
     response = requests.post(url, headers=self.authorized_headers, verify=False, data=data)
     print("{}".format(json.loads(response.text)))
     return json.loads(response.text)
+
+
+  def create_line_item(self, line_item):
+    url = "https://advertising-api.amazon.com/da/v1/line-items/"
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': 'advertising-api.amazon', 'Amazon-Advertising-API-Scope': self.profile_id}
+
+    data = {"object": {
+        "orderId": {
+            "value": line_item.orderId
+        },
+        "name": line_item.name,
+        "startDateTime": line_item.startDatetime,
+        "endDateTime": line_item.endDateTime,
+        "deliveryActivationStatus": line_item.status
+        }
+    }
+    
+    response = requests.post(url, headers=self.authorized_headers, verify=False, data=data)
+    print("{}".format(json.loads(response.text)))
+    return json.loads(response.text)
+    

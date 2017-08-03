@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+import os
 import amazonadapi
 from amazonadapi import AmazonClient
 
@@ -12,7 +13,8 @@ class TestAmazonClient(TestCase):
     # assumes primed connection
     def test_profiles(self):
         b = amazonadapi.AmazonClient()
-        json_profile = b.profiles()
+        b.token = os.environ['AMZN_TOKEN']
+        json_profile = b.get_profiles()
         self.assertTrue('USD', json_profile[0]['currencyCode'])
 
     

@@ -57,13 +57,14 @@ class AmazonClient:
   token = None
   refresh_token = None
   profile_id = None
-
+  host = None
 
   def __init__(self):
     self.client_id = os.environ['AMZN_AD_CLIENT_ID']
     self.client_secret = os.environ['AMZN_AD_CLIENT_SECRET']
     # self.auth_url = "https://www.amazon.com/ap/oa?client_id=" + self.client_id + "&scope=advertising::campaign_management&repsonse_type=code&redirect_url=https%3A//www.accuenplatform.com/accounts/login/%3Fnext%3D/backstage/api/advertiser"
     self.auth_url = os.environ['AMZN_AUTH_URL']
+    self.host = 'advertising-api.amazon.com'
 
   def connect(self):
     get_token_url = "https://api.amazon.com/auth/o2/token"
@@ -94,6 +95,8 @@ class AmazonClient:
     # print(self.raw_token_results)
     self.token = self.raw_token_results['access_token']
     self.refresh_token = self.raw_token_results['refresh_token']
+    profiles_json = self.get_profiles()
+    self.profile_id = str(profiles_json[0]['profileId'])
     return self.token
 
   def refresh_token(self):
@@ -120,21 +123,24 @@ class AmazonClient:
   # url: https://advertising-api.amazon.com/da/v1/orders/ORDER_ID
   def get_order(self, order_id):
     url = "https://advertising-api.amazon.com/da/v1/orders/" + order_id
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': 'advertising-api.amazon', 'Amazon-Advertising-API-Scope': self.profile_id}
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
     r = requests.get(url, headers=headers)
+    print(r)
+    print(r.url)
+    print(r.text)
     results_json = r.json()
     return results_json
 
   def get_line_item(self, line_item_id):
     url = "https://advertising-api.amazon.com/da/v1/line_items/" + line_item_id
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': 'advertising-api.amazon', 'Amazon-Advertising-API-Scope': self.profile_id}
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
     r = requests.get(url, headers=headers)
     results_json = r.json()
     return results_json
       
   def create_order(self, order):
     url = "https://advertising-api.amazon.com/da/v1/orders/"
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': 'advertising-api.amazon', 'Amazon-Advertising-API-Scope': self.profile_id}
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
 
     data = {"object": {
         "advertiserId": {
@@ -154,7 +160,7 @@ class AmazonClient:
 
   def create_line_item(self, line_item):
     url = "https://advertising-api.amazon.com/da/v1/line-items/"
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': 'advertising-api.amazon', 'Amazon-Advertising-API-Scope': self.profile_id}
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
 
     data = {"object": {
         "orderId": {

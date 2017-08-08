@@ -37,6 +37,8 @@ class AmazonLineItem:
   startDateTime = None
   endDateTime = None
   status = None
+  budget = {}
+  deliveryCaps = {}
 
   def __init__(self):
     self.status = 'INACTIVE'
@@ -58,6 +60,7 @@ class AmazonClient:
   refresh_token = None
   profile_id = None
   host = None
+  data = None
 
   def __init__(self):
     self.client_id = os.environ['AMZN_AD_CLIENT_ID']
@@ -132,48 +135,57 @@ class AmazonClient:
     return results_json
 
   def get_line_item(self, line_item_id):
-    url = "https://advertising-api.amazon.com/da/v1/line_items/" + line_item_id
+    url = "https://advertising-api.amazon.com/da/v1/line-items/" + line_item_id
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
     r = requests.get(url, headers=headers)
     results_json = r.json()
     return results_json
       
   def create_order(self, order):
-    url = "https://advertising-api.amazon.com/da/v1/orders/"
+    url = "https://advertising-api.amazon.com/da/v1/orders"
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
 
-    data = {"object": {
+    self.data = {"object": {
         "advertiserId": {
             "value": order.advertiserId
         },
         "name": order.name,
-        "startDateTime": order.startDatetime,
+        "startDateTime": order.startDateTime,
         "endDateTime": order.endDateTime,
-        "deliveryActiviationStatus": order.status
+        "deliveryActivationStatus": order.status
         }
     }
     
-    response = requests.post(url, headers=self.authorized_headers, verify=False, data=data)
-    print("{}".format(json.loads(response.text)))
-    return json.loads(response.text)
+    response = requests.post(url, headers=headers, verify=False, data=json.dumps(self.data))
+    print(response)
+    print(response.url)
+    print(response.text)
+    print(response.json())
+    return response.json()
 
 
   def create_line_item(self, line_item):
-    url = "https://advertising-api.amazon.com/da/v1/line-items/"
+    url = "https://advertising-api.amazon.com/da/v1/line-items"
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
 
-    data = {"object": {
+    self.data = {"object": {
         "orderId": {
             "value": line_item.orderId
         },
         "name": line_item.name,
-        "startDateTime": line_item.startDatetime,
+        "startDateTime": line_item.startDateTime,
         "endDateTime": line_item.endDateTime,
-        "deliveryActivationStatus": line_item.status
+        "deliveryActivationStatus": line_item.status,
+        "budget" : line_item.budget,
+        "deliveryCaps" : line_item.deliveryCaps
         }
     }
-    
-    response = requests.post(url, headers=self.authorized_headers, verify=False, data=data)
-    print("{}".format(json.loads(response.text)))
-    return json.loads(response.text)
-    
+
+    print(json.dumps(self.data))
+    print("--- posting data ---")
+    response = requests.post(url, headers=headers, verify=False, data=json.dumps(self.data))
+    print(response)
+    print(response.url)
+    print(response.text)
+    print(response.json())
+    return response.json()

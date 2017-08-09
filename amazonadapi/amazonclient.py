@@ -38,7 +38,7 @@ class AmazonLineItem:
   endDateTime = None
   status = None
   budget = {}
-  deliveryCaps = {}
+  deliveryCaps = []
 
   def __init__(self):
     self.status = 'INACTIVE'
@@ -173,6 +173,7 @@ class AmazonClient:
             "value": line_item.orderId
         },
         "name": line_item.name,
+        "type": line_item.type,
         "startDateTime": line_item.startDateTime,
         "endDateTime": line_item.endDateTime,
         "deliveryActivationStatus": line_item.status,

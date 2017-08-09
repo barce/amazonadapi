@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='amazonadapi',
-    version='0.0.7',
+    version='0.0.8',
     author='Jim Barcelona, Arun Suresh',
     author_email='barce@me.com, arunvsuresh@gmail.com',
     packages=['amazonadapi', 'amazonadapi.tests'],

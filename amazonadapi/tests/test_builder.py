@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import os
 import amazonadapi
-from amazonadapi import AmazonClient
+from amazonadapi import *
 
 
 class TestAmazonClient(TestCase):
@@ -17,4 +17,5 @@ class TestAmazonClient(TestCase):
         json_profile = b.get_profiles()
         self.assertTrue('USD', json_profile[0]['currencyCode'])
 
-    
+    def test_get_order(self):
+        b = amazonadapi.AmazonClient()

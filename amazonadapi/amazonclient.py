@@ -20,6 +20,7 @@ except ImportError:
     use_environment_variables = True
 
 class AmazonOrder:
+  id = None
   advertiserId = None
   name = None
   startDateTime = None
@@ -164,7 +165,32 @@ class AmazonClient:
     print(response.json())
     return response.json()
 
+  def update_order(self, order):
+    url = "https://advertising-api.amazon.com/da/v1/orders"
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
 
+    self.data = {"object": {
+        "id": {
+            "value": order.id
+        },
+        "advertiserId": {
+            "value": order.advertiserId
+        },
+        "name": order.name,
+        "startDateTime": order.startDateTime,
+        "endDateTime": order.endDateTime,
+        "deliveryActivationStatus": order.status
+        }
+    }
+    
+    response = requests.put(url, headers=headers, verify=False, data=json.dumps(self.data))
+    print(response)
+    print(response.url)
+    print(response.text)
+    print(response.json())
+    return response.json()
+
+      
   def create_line_item(self, line_item):
     url = "https://advertising-api.amazon.com/da/v1/line-items"
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}

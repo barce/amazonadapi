@@ -31,6 +31,7 @@ class AmazonOrder:
     self.status = 'INACTIVE'
 
 class AmazonLineItem:
+  id = None
   orderId = None
   name = None
   type = None
@@ -190,3 +191,35 @@ class AmazonClient:
     print(response.text)
     print(response.json())
     return response.json()
+
+  def update_line_item(self, line_item):
+    # url = "https://advertising-api.amazon.com/da/v1/line-items/" + line_item.id
+    url = "https://advertising-api.amazon.com/da/v1/line-items"
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
+
+    self.data = {"object": {
+        "id": {
+            "value": line_item.id
+        },
+        "orderId": {
+            "value": line_item.orderId
+        },
+        "name": line_item.name,
+        "type": line_item.type,
+        "startDateTime": line_item.startDateTime,
+        "endDateTime": line_item.endDateTime,
+        "deliveryActivationStatus": line_item.status,
+        "budget" : line_item.budget,
+        "deliveryCaps" : line_item.deliveryCaps
+        }
+    }
+
+    print(json.dumps(self.data))
+    print("--- posting data ---")
+    response = requests.put(url, headers=headers, verify=False, data=json.dumps(self.data))
+    print(response)
+    print(response.url)
+    print(response.text)
+    print(response.json())
+    return response.json()
+      

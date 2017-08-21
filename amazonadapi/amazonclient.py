@@ -96,15 +96,15 @@ class AmazonClient:
 
     print("Auth code, {}, entered.".format(self.amzn_code))
     self.raw_token_results = self.connect()
-    # print("raw_token_results:")
-    # print(self.raw_token_results)
+    print("raw_token_results:")
+    print(self.raw_token_results)
     self.token = self.raw_token_results['access_token']
     self.refresh_token = self.raw_token_results['refresh_token']
     profiles_json = self.get_profiles()
     self.profile_id = str(profiles_json[0]['profileId'])
     return self.token
 
-  def refresh_token(self):
+  def auto_refresh_token(self):
     get_token_url = "https://api.amazon.com/auth/o2/token"
     payload = "grant_type=refresh_token&client_id=" + self.client_id + "&client_secret=" + self.client_secret + "&refresh_token=" + self.refresh_token
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}

@@ -119,6 +119,15 @@ class AmazonClient:
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token}
     r = requests.get(url, headers=headers)
     results_json = r.json()
+    # {'code': '401', 'details': 'Authentication failed', 'requestId': '743845JKEHRXXR1HYNQZ'}
+
+    print(results_json)
+    try:
+        if results_json['code'] == '401':
+            refresh_results_json = self.auto_refresh_token()
+    except:
+        print("expected result")
+    
     return results_json
 
   # -H Authorization: Bearer self.token
@@ -134,6 +143,11 @@ class AmazonClient:
     print(r.url)
     print(r.text)
     results_json = r.json()
+    try:
+        if results_json['code'] == '401':
+            refresh_results_json = self.auto_refresh_token()
+    except:
+        print("expected result")
     return results_json
 
   def get_line_item(self, line_item_id):
@@ -141,6 +155,11 @@ class AmazonClient:
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
     r = requests.get(url, headers=headers)
     results_json = r.json()
+    try:
+        if results_json['code'] == '401':
+            refresh_results_json = self.auto_refresh_token()
+    except:
+        print("expected result")
     return results_json
       
   def create_order(self, order):
@@ -163,6 +182,12 @@ class AmazonClient:
     print(response.url)
     print(response.text)
     print(response.json())
+    results_json = response.json()
+    try:
+        if results_json['code'] == '401':
+            refresh_results_json = self.auto_refresh_token()
+    except:
+        print("expected result")
     return response.json()
 
   def update_order(self, order):
@@ -188,7 +213,13 @@ class AmazonClient:
     print(response.url)
     print(response.text)
     print(response.json())
-    return response.json()
+    results_json = response.json()
+    try:
+        if results_json['code'] == '401':
+            refresh_results_json = self.auto_refresh_token()
+    except:
+        print("expected result")
+    return results_json
 
       
   def create_line_item(self, line_item):
@@ -216,7 +247,13 @@ class AmazonClient:
     print(response.url)
     print(response.text)
     print(response.json())
-    return response.json()
+    results_json = response.json()
+    try:
+        if results_json['code'] == '401':
+            refresh_results_json = self.auto_refresh_token()
+    except:
+        print("expected result")
+    return results_json
 
   def update_line_item(self, line_item):
     # url = "https://advertising-api.amazon.com/da/v1/line-items/" + line_item.id
@@ -247,5 +284,12 @@ class AmazonClient:
     print(response.url)
     print(response.text)
     print(response.json())
-    return response.json()
+    results_json = response.json()
+    try:
+        if results_json['code'] == '401':
+            refresh_results_json = self.auto_refresh_token()
+    except:
+        print("expected result")
+    return results_json
+
       

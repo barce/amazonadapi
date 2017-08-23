@@ -1,13 +1,22 @@
 # amazonadapi
 Client for the Amazon Ad API
 
-Sample code:
+# FOR ETL or automated job servers, e.g. SMP, use the following to initialize:
+from amazonadapi import AmazonClient
+import os
+client = AmazonClient()
+client.refresh_token = os.environ['AMZN_REFRESH_TOKEN']
+client.auto_refresh_token()
+client.get_profiles()
+client.profile_id = 'BE_SURE_TO_SET_THIS_FOR_YOUR_ORGANIZATION'
 
+# Sample code for using browser and command-line to auth:
 from amazonadapi import AmazonClient
 client = AmazonClient()
 client.cli_auth_dance()
 client.get_profiles()
 client.profile_id = 'BE_SURE_TO_SET_THIS'
+
 
 # create an order
 order = AmazonOrder()

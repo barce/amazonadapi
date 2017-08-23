@@ -69,6 +69,12 @@ class AmazonClient:
     self.client_secret = os.environ['AMZN_AD_CLIENT_SECRET']
     # self.auth_url = "https://www.amazon.com/ap/oa?client_id=" + self.client_id + "&scope=advertising::campaign_management&repsonse_type=code&redirect_url=https%3A//www.accuenplatform.com/accounts/login/%3Fnext%3D/backstage/api/advertiser"
     self.auth_url = os.environ['AMZN_AUTH_URL']
+    try:
+        self.refresh_token = os.environ['AMZN_REFRESH_TOKEN']
+    except KeyError as e:
+        print("error missing:")
+        print(e)
+    
     self.host = 'advertising-api.amazon.com'
 
   def connect(self):

@@ -10,6 +10,9 @@ client.auto_refresh_token()
 client.set_region()
 client.get_profiles()
 client.profile_id = 'BE_SURE_TO_SET_THIS_FOR_YOUR_ORGANIZATION'
+client.get_advertisers()
+client.get_orders('AD_ID')
+client.get_order('ORDER_ID')
 
 # Sample code for using browser and command-line to auth:
 from amazonadapi import AmazonClient

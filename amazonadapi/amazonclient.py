@@ -155,6 +155,40 @@ class AmazonClient:
   # -H Host: advertising-api.amazon
   # -H Amazon-Advertising-API-Scope: PROFILE_ID
   # -H Content-Type: application/json
+  # url: https://advertising-api.amazon.com/da/v1/advertisers
+  def get_advertisers(self, page_size=20):
+    url = "https://" + self.host + "/da/v1/advertisers?page_size=" + str(page_size)
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
+    r = requests.get(url, headers=headers)
+    results_json = r.json()
+    try:
+        if results_json['code'] == '401':
+            refresh_results_json = self.auto_refresh_token()
+    except:
+        print("expected result")
+    return results_json
+
+  # -H Authorization: Bearer self.token
+  # -H Host: advertising-api.amazon
+  # -H Amazon-Advertising-API-Scope: PROFILE_ID
+  # -H Content-Type: application/json
+  # url: https://advertising-api.amazon.com/da/v1/advertisers/AD_ID/orders
+  def get_orders(self, ad_id):
+    url = "https://" + self.host + "/da/v1/advertisers/" + str(ad_id) + "/orders"
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
+    r = requests.get(url, headers=headers)
+    results_json = r.json()
+    try:
+        if results_json['code'] == '401':
+            refresh_results_json = self.auto_refresh_token()
+    except:
+        print("expected result")
+    return results_json
+
+  # -H Authorization: Bearer self.token
+  # -H Host: advertising-api.amazon
+  # -H Amazon-Advertising-API-Scope: PROFILE_ID
+  # -H Content-Type: application/json
   # url: https://advertising-api.amazon.com/da/v1/orders/ORDER_ID
   def get_order(self, order_id):
     url = "https://" + self.host + "/da/v1/orders/" + order_id

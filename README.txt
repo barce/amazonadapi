@@ -7,6 +7,7 @@ import os
 client = AmazonClient()
 client.refresh_token = os.environ['AMZN_REFRESH_TOKEN']
 client.auto_refresh_token()
+client.set_region()
 client.get_profiles()
 client.profile_id = 'BE_SURE_TO_SET_THIS_FOR_YOUR_ORGANIZATION'
 

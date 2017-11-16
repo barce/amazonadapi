@@ -1,0 +1,10 @@
+[ ] support region URI for:
+    [ ] USA: https://advertising-api.amazon.com
+    [ ] EU & India: https://advertising-api-eu.amazon.com
+    [ ] Japan: https://advertising-api-fe.amazon.com
+    
+[ ] get advertisers (by profile id)
+[ ] get orders (by advertiser id)
+[ ] get line items (by order id)
+[ ] support for enumerations
+[ ] support for other objects, e.g. Account Info

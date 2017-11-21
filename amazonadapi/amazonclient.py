@@ -65,6 +65,9 @@ class AmazonClient:
   region_list = {}
   host = None
   data = None
+  page_token = None
+  page_size = None
+  next_page_url = None
 
   def __init__(self):
     self.client_id = os.environ['AMZN_AD_CLIENT_ID']
@@ -156,10 +159,27 @@ class AmazonClient:
   # -H Amazon-Advertising-API-Scope: PROFILE_ID
   # -H Content-Type: application/json
   # url: https://advertising-api.amazon.com/da/v1/advertisers
-  def get_advertisers(self, page_size=20):
-    url = "https://" + self.host + "/da/v1/advertisers?page_size=" + str(page_size)
+  def get_advertisers(self):
+    if self.page_token == None:
+      if self.page_size == None:
+        url = "https://" + self.host + "/da/v1/advertisers"
+      else:
+        url = "https://" + self.host + "/da/v1/advertisers?page_size=" + str(self.page_size)
+        self.page_size = None
+    else:
+      url = "https://" + self.host + "/da/v1/advertisers?page_token=" + self.page_token
+    
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
+
+    print(url)
+    print(headers)
     r = requests.get(url, headers=headers)
+    print(r)
+    print(r.headers['Link'])
+    import re
+    p = re.compile('.*page_token=(.*)>')
+    matches = p.findall(client.next_page_url)
+    self.page_token = matches[0]
     results_json = r.json()
     try:
         if results_json['code'] == '401':

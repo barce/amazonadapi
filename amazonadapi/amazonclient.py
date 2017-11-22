@@ -185,9 +185,11 @@ class AmazonClient:
       except:
         i_sentinel = 0
   
-      p = re.compile('.*page_token=(.*)>')
-      matches = p.findall(self.next_page_url)
-      self.page_token = matches[0]
+      if self.next_page_url != None:
+        p = re.compile('.*page_token=(.*)>')
+        matches = p.findall(self.next_page_url)
+        self.page_token = matches[0]
+
       results_json = r.json()
       json_ids = results_json['object']['objects']
       for json_id in json_ids:
@@ -200,6 +202,8 @@ class AmazonClient:
       except:
         print("expected result")
 
+    self.page_token = None
+    self.page_size = None
 
     return ids
 
@@ -228,10 +232,13 @@ class AmazonClient:
       except:
         i_sentinel = 0
   
-      p = re.compile('.*page_token=(.*)>')
-      matches = p.findall(self.next_page_url)
-      self.page_token = matches[0]
+      if self.next_page_url != None:
+        p = re.compile('.*page_token=(.*)>')
+        matches = p.findall(self.next_page_url)
+        self.page_token = matches[0]
+
       results_json = r.json()
+      print(results_json)
       json_ids = results_json['object']['objects']
       for json_id in json_ids:
         print(json_id)
@@ -243,6 +250,8 @@ class AmazonClient:
       except:
         print("expected result")
 
+    self.page_token = None
+    self.page_size = None
     return ids
 
   # -H Authorization: Bearer self.token
@@ -271,19 +280,48 @@ class AmazonClient:
   # -H Content-Type: application/json
   # url: https://advertising-api.amazon.com/da/v1/orders/ORDER_ID/line-items
   def get_line_items(self, order_id):
-    url = "https://" + self.host + "/da/v1/orders/" + order_id + "/line-items"
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
-    r = requests.get(url, headers=headers)
-    print(r)
-    print(r.url)
-    print(r.text)
-    results_json = r.json()
-    try:
-        if results_json['code'] == '401':
-            refresh_results_json = self.auto_refresh_token()
-    except:
-        print("expected result")
-    return results_json
+    i_sentinel = 1
+    ids = []
+    while i_sentinel == 1:
+      if self.page_token == None:
+        if self.page_size == None:
+          url = "https://" + self.host + "/da/v1/orders/" + order_id + "/line-items"
+        else: 
+          url = "https://" + self.host + "/da/v1/orders/" + order_id + "/line-items?page_size=" + str(self.page_size)
+          self.page_size = None
+      else:
+        url = "https://" + self.host + "/da/v1/orders/" + order_id + "/line-items?page_token=" + self.page_token
+        
+      headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
+      r = requests.get(url, headers=headers)
+
+      try:
+        self.next_page_url = r.headers['Link']
+      except:
+        i_sentinel = 0
+  
+      if self.next_page_url != None:
+        p = re.compile('.*page_token=(.*)>')
+        matches = p.findall(self.next_page_url)
+        self.page_token = matches[0]
+
+      results_json = r.json()
+      json_ids = results_json['object']['objects']
+      for json_id in json_ids:
+        print(json_id)
+        ids.append(json_id['id']['value'])
+
+
+      try:
+          if results_json['code'] == '401':
+              refresh_results_json = self.auto_refresh_token()
+      except:
+          print("expected result")
+
+
+    self.page_token = None
+    self.page_size = None
+    return ids
 
   def get_line_item(self, line_item_id):
     url = "https://" + self.host + "/da/v1/line-items/" + line_item_id

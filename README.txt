@@ -1,6 +1,17 @@
 # amazonadapi
 Client for the Amazon Ad API
 
+# Notes:
+# 
+# The Amazon Ad API pulls only the IDs for each ad tech object.
+# E.G. client.get_orders('AD_ID') just returns the order IDs.
+# Take the array of order IDs and call client.get_order('ORDER_ID').
+# 
+order_ids = client.get_orders('AD_ID')
+for order_id in order_ids:
+  order = client.get_order(order_id)
+
+
 # FOR ETL or automated job servers, e.g. SMP, use the following to initialize:
 from amazonadapi import AmazonClient
 import os

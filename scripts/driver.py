@@ -28,7 +28,7 @@ print(line_items)
 
 print('testing CR & U')
 print('--------------')
-line_item = {PUT_ANYTHING_IN_HER}
+line_item = {PUT_ANYTHING_IN_HERE}
 
 result = client.create_line_item(line_item)
 print(result)

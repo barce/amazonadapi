@@ -121,13 +121,24 @@ class AmazonClient:
     return self.token
 
   def auto_refresh_token(self):
-    get_token_url = "https://api.amazon.com/auth/o2/token"
-    payload = "grant_type=refresh_token&client_id=" + self.client_id + "&client_secret=" + self.client_secret + "&refresh_token=" + self.refresh_token
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    r = requests.post(get_token_url, data=payload, headers=headers)
-    results_json = r.json()
-    self.token = results_json['access_token']
+    i_sentinel = 1
+    i_counter = 0
+    while i_sentinel > 0:
+      get_token_url = "https://api.amazon.com/auth/o2/token"
+      payload = "grant_type=refresh_token&client_id=" + self.client_id + "&client_secret=" + self.client_secret + "&refresh_token=" + self.refresh_token
+      headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+      r = requests.post(get_token_url, data=payload, headers=headers)
+      results_json = r.json()
+      if 'access_token' in results_json:
+        self.token = results_json['access_token']
+        return results_json
+      i_counter += 1
+      sleep 1
+      if i_counter >= 5:
+        i_sentinel = 0
     return results_json
+
+      
 
   def set_region(self, region='US'):
     self.region = region

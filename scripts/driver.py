@@ -8,6 +8,7 @@ client.auto_refresh_token()
 client.set_region()
 client.get_profiles()
 client.profile_id = '3586026682031981'
+# orders = client.get_orders(dsp_advertiser_id)
 # client.page_size = 20
 ads = client.get_advertisers()
 print('ads:')
@@ -25,3 +26,9 @@ print('line items:')
 print(len(line_items))
 print(line_items)
 
+print('testing CR & U')
+print('--------------')
+line_item = {}
+
+result = client.create_line_item(line_item)
+print(result)

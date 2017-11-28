@@ -133,7 +133,7 @@ class AmazonClient:
         self.token = results_json['access_token']
         return results_json
       i_counter += 1
-      sleep 1
+      sleep(1)
       if i_counter >= 5:
         i_sentinel = 0
     return results_json

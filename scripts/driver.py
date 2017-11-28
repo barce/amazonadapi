@@ -3,6 +3,7 @@
 from amazonadapi import AmazonClient, AmazonOrder, AmazonLineItem
 import os
 import random
+import time
 
 # number of failed tests
 i_fail = 0
@@ -43,36 +44,37 @@ except:
 print('testing CR & U')
 print('--------------')
 
-# print('create order')
-# try:
-#   order = AmazonOrder()
-#   
-#   order.advertiserId = '3678742709207'
-#   order.name = 'barce test'
-#   order.startDateTime = 1511909961000 # unix time * 1000
-#   order.endDateTime = 1512514761000   # unix time * 1000
-#   
-#   hash_order = {"object": {
-#       "advertiserId": {
-#         "value": order.advertiserId
-#       },
-#       "name": order.name,
-#       "startDateTime": order.startDateTime,
-#       "endDateTime": order.endDateTime,
-#       "deliveryActivationStatus": order.status
-#       }
-#   }
-#   
-#   created_order = client.create_order(hash_order)
-# except:
-#   i_fail += 1
+print('create order')
+try:
+  order = AmazonOrder()
+  
+  order.advertiserId = '3678742709207'
+  order.name = 'amazon api test {}'.format(time.time())
+  order.startDateTime = 1511909961000 # unix time * 1000
+  order.endDateTime = 1512514761000   # unix time * 1000
+  
+  hash_order = {"object": {
+      "advertiserId": {
+        "value": order.advertiserId
+      },
+      "name": order.name,
+      "startDateTime": order.startDateTime,
+      "endDateTime": order.endDateTime,
+      "deliveryActivationStatus": order.status
+      }
+  }
+  
+  created_order = client.create_order(hash_order)
+except:
+  i_fail += 1
 
-# order_id = '3627073370201'
+print(created_order)
+order_id = created_order['object']['id']['value']
 
 try: 
   print('create line item')
   line_item = AmazonLineItem()
-  line_item.orderId = '3627073370201'
+  line_item.orderId = order_id
   line_item.advertiserId = '3678742709207'
   line_item.type = "NON_GUARANTEED_DISPLAY"
   line_item.name = 'barce line_item'

@@ -35,15 +35,29 @@ client.profile_id = 'BE_SURE_TO_SET_THIS'
 
 # create an order
 order = AmazonOrder()
-order.startDateTime = 1511909961
-order.endDateTime = 1512514761 
-order.advertiserId = '4609051190001'
-order.name = 'API Test Created 9/9/2017 to 10/9/2017 Order'
-client.create_order(order)
+
+order.advertiserId = '3678742709207'
+order.name = 'amazon api test {}'.format(time.time())
+order.startDateTime = 1511909961000 # unix time * 1000
+order.endDateTime = 1512514761000   # unix time * 1000
+
+hash_order = {"object": {
+    "advertiserId": {
+      "value": order.advertiserId
+    },
+    "name": order.name,
+    "startDateTime": order.startDateTime,
+    "endDateTime": order.endDateTime,
+    "deliveryActivationStatus": order.status
+    }
+}
+
+created_order = client.create_order(hash_order)
 
 # create a line item
 line_item = AmazonLineItem()
 line_item.orderId = 'ORDER_ID'
+line_item.advertiserId = 'AD_ID'
 line_item.name = 'Test API Line Item Creation'
 
 # types: NON_GUARANTEED_DISPLAY,NON_GUARANTEED_MOBILE_APP,NON_GUARANTEED_VIDEO
@@ -58,5 +72,25 @@ line_item.budget['deliveryBuffer'] = 1
 
 # recurrenceTypes: DAILY, MONTHLY, LIFETIME
 line_item.deliveryCaps.append({'amount': 0.9, 'recurrenceType': 'DAILY'})
-client.create_line_item(line_item)
+
+hashline_item = {"object": {
+    "orderId": {
+      "value": line_item.orderId
+    },
+    "advertiserId": {
+      "value": line_item.advertiserId
+    },
+    "name": line_item.name,
+    "type": line_item.type,
+    "startDateTime": line_item.startDateTime,
+    "endDateTime": line_item.endDateTime,
+    "deliveryActivationStatus": line_item.status,
+    "budget" : line_item.budget,
+    "deliveryCaps" : line_item.deliveryCaps
+
+  }
+}
+
+result = client.create_line_item(hashline_item)
+client.create_line_item(hashline_item)
 

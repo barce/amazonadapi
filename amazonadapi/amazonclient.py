@@ -28,6 +28,7 @@ class AmazonOrder:
   endDateTime = None
   status = None
   budget = {}
+  deliveryCaps = []
 
 
   def __init__(self):

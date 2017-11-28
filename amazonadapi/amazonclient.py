@@ -27,6 +27,7 @@ class AmazonOrder:
   startDateTime = None
   endDateTime = None
   status = None
+  budget = {}
 
 
   def __init__(self):
@@ -35,6 +36,7 @@ class AmazonOrder:
 class AmazonLineItem:
   id = None
   orderId = None
+  advertiserId = None
   name = None
   type = None
   startDateTime = None

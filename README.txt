@@ -35,8 +35,8 @@ client.profile_id = 'BE_SURE_TO_SET_THIS'
 
 # create an order
 order = AmazonOrder()
-order.startDateTime = 1504972206000
-order.endDateTime = 1507564206000
+order.startDateTime = 1511909961
+order.endDateTime = 1512514761 
 order.advertiserId = '4609051190001'
 order.name = 'API Test Created 9/9/2017 to 10/9/2017 Order'
 client.create_order(order)

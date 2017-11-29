@@ -167,6 +167,10 @@ try:
 except:
   i_fail += 1
 
+if updated_line_item['object']['name'] != 'updated line item':
+  i_fail += 1
+else:
+  print('update success...')
 
 print("\n\n\n")
 print("Tests complete. {} test(s) failed.".format(i_fail))

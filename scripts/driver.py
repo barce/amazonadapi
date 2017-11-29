@@ -71,6 +71,36 @@ except:
 print(created_order)
 order_id = created_order['object']['id']['value']
 
+try:
+  print('update order')
+
+  hash_order = {"object": {
+       "id": {
+           "value": order_id
+       },
+       "advertiserId": {
+           "value": order.advertiserId
+       },
+       "name": 'updated api test',
+       "startDateTime": order.startDateTime,
+       "endDateTime": order.endDateTime,
+       "deliveryActivationStatus": order.status
+       }
+   }
+
+  updated_order = client.update_order(hash_order)
+  print('updated order:')
+  print('--------------')
+  print(updated_order)
+  print(updated_order['object']['name'])
+except:
+  i_fail += 1
+
+if updated_order['object']['name'] != 'updated api test':
+  i_fail += 1
+else:
+  print('update success...')
+
 try: 
   print('create line item')
   line_item = AmazonLineItem()
@@ -103,11 +133,39 @@ try:
     }
   }
   
-  result = client.create_line_item(hashline_item)
-  print(result)
+  created_line_item = client.create_line_item(hashline_item)
+  print(created_line_item)
 except:
   i_fail += 1
 
+
+line_item_id = created_line_item['object']['id']['value']
+try: 
+  hashline_item = {"object": {
+       "id": {
+           "value": line_item_id
+       },
+      "orderId": {
+        "value": line_item.orderId
+      },
+      "advertiserId": {
+        "value": line_item.advertiserId
+      },
+      "name": 'updated line item',
+      "type": line_item.type,
+      "startDateTime": line_item.startDateTime,
+      "endDateTime": line_item.endDateTime,
+      "deliveryActivationStatus": line_item.status,
+      "budget" : line_item.budget,
+      "deliveryCaps" : line_item.deliveryCaps
+
+    }
+  }
+
+  updated_line_item = client.update_line_item(hashline_item)
+  print(updated_line_item)
+except:
+  i_fail += 1
 
 
 print("\n\n\n")

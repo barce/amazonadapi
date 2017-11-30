@@ -166,7 +166,7 @@ class AmazonClient:
         self.error_check_json(results_json)
     except Exception as e:
       print("expected result")
-      raise e
+      return e
 
     return results_json
 
@@ -216,7 +216,7 @@ class AmazonClient:
           self.error_check_json(results_json)
       except Exception as e:
         print("expected result")
-        raise e
+        return e
 
     self.page_token = None
     self.page_size = None
@@ -265,7 +265,7 @@ class AmazonClient:
           self.error_check_json(results_json)
       except Exception as e:
         print("expected result")
-        raise e
+        return e
 
     self.page_token = None
     self.page_size = None
@@ -290,7 +290,7 @@ class AmazonClient:
         self.error_check_json(results_json)
     except Exception as e:
       print("expected result")
-      raise e
+      return e
 
     return results_json
 
@@ -336,7 +336,7 @@ class AmazonClient:
           self.error_check_json(results_json)
       except Exception as e:
         print("expected result")
-        raise e
+        return e
 
 
     self.page_token = None
@@ -353,7 +353,7 @@ class AmazonClient:
         self.error_check_json(results_json)
     except Exception as e:
         print("expected result")
-        raise e
+        return e
 
     return results_json
       
@@ -386,7 +386,7 @@ class AmazonClient:
         self.error_check_json(results_json)
     except Exception as e:
         print("expected result")
-        raise e
+        return e
 
     return response.json()
 
@@ -421,7 +421,7 @@ class AmazonClient:
         self.error_check_json(results_json)
     except Exception as e:
       print("expected result")
-      raise e
+      return e
 
     return results_json
 
@@ -458,7 +458,7 @@ class AmazonClient:
         self.error_check_json(results_json)
     except Exception as e:
       print("expected result")
-      raise e
+      return e
     return results_json
 
 
@@ -500,7 +500,7 @@ class AmazonClient:
         self.error_check_json(results_json)
     except Exception as e:
       print("expected result")
-      raise e
+      return e
 
     return results_json
 
@@ -511,9 +511,9 @@ class AmazonClient:
     print('---error---')
     if results_json['error']['httpStatusCode'] == '401':
       refresh_results_json = self.auto_refresh_token()
-      raise Exception(json.dumps(results_json))
+      raise Exception(results_json)
     elif results_json['error']['httpStatusCode'] != '200':
-      raise Exception(json.dumps(results_json))
+      raise Exception(results_json)
     else: 
-      print(results_json)
+      return results_json
 

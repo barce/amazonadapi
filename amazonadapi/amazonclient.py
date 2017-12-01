@@ -214,6 +214,7 @@ class AmazonClient:
       try:  
         if 'error' in results_json:
           self.error_check_json(results_json)
+          return results_json
       except Exception as e:
         print("expected result")
         return e
@@ -263,6 +264,7 @@ class AmazonClient:
       try:
         if 'error' in results_json:
           self.error_check_json(results_json)
+          return results_json
       except Exception as e:
         print("expected result")
         return e
@@ -288,6 +290,7 @@ class AmazonClient:
     try:
       if 'error' in results_json:
         self.error_check_json(results_json)
+        return results_json
     except Exception as e:
       print("expected result")
       return e
@@ -334,6 +337,7 @@ class AmazonClient:
       try:  
         if 'error' in results_json:
           self.error_check_json(results_json)
+          return results_json
       except Exception as e:
         print("expected result")
         return e
@@ -351,6 +355,7 @@ class AmazonClient:
     try:
       if 'error' in results_json:
         self.error_check_json(results_json)
+        return results_json
     except Exception as e:
         print("expected result")
         return e
@@ -384,6 +389,7 @@ class AmazonClient:
     try:
       if 'error' in results_json:
         self.error_check_json(results_json)
+        return results_json
     except Exception as e:
         print("expected result")
         return e
@@ -419,6 +425,7 @@ class AmazonClient:
     try:
       if 'error' in results_json:
         self.error_check_json(results_json)
+        return results_json
     except Exception as e:
       print("expected result")
       return e
@@ -456,6 +463,7 @@ class AmazonClient:
     try:  
       if 'error' in results_json:
         self.error_check_json(results_json)
+        return results_json
     except Exception as e:
       print("expected result")
       return e
@@ -498,6 +506,7 @@ class AmazonClient:
     try:
       if 'error' in results_json:
         self.error_check_json(results_json)
+        return results_json
     except Exception as e:
       print("expected result")
       return e
@@ -511,9 +520,5 @@ class AmazonClient:
     print('---error---')
     if results_json['error']['httpStatusCode'] == '401':
       refresh_results_json = self.auto_refresh_token()
-      raise Exception(results_json)
-    elif results_json['error']['httpStatusCode'] != '200':
-      raise Exception(results_json)
-    else: 
-      return results_json
+    return results_json
 

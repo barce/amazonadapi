@@ -11,13 +11,13 @@ i_fail = 0
 # logging in test
 
 try:
+  print('login test')
   client = AmazonClient()
   client.refresh_token = os.environ['AMZN_REFRESH_TOKEN']
   client.auto_refresh_token()
   client.set_region()
   client.get_profiles()
   client.profile_id == '3586026682031981'
-
 except:
   i_fail += 1
 
@@ -46,6 +46,7 @@ print('testing CR & U')
 print('--------------')
 
 print('create order')
+created_order = None
 try:
   order = AmazonOrder()
   

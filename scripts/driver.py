@@ -16,7 +16,8 @@ try:
   client.auto_refresh_token()
   client.set_region()
   client.get_profiles()
-  client.profile_id = '3586026682031981'
+  client.profile_id == '3586026682031981'
+
 except:
   i_fail += 1
 

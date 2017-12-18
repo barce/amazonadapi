@@ -174,5 +174,24 @@ if updated_line_item['object']['name'] != 'updated line item':
 else:
   print('update success...')
 
+
+try:
+  print('getting Canada data')
+  os.environ['AMZN_PROFILE_ID'] = '4285459679297609'
+  client = AmazonClient()
+  client.refresh_token = os.environ['AMZN_REFRESH_TOKEN']
+  client.auto_refresh_token()
+  client.set_region()
+  client.get_profiles()
+  advertisers = client.get_advertisers('4285459679297609')
+  print('--- advertisers ---')
+  print(advertisers)
+  orders = client.get_orders('3196388450901')
+  print('--- orders ---')
+  print(orders)
+except:
+  i_fail += 1
+
+
 print("\n\n\n")
 print("Tests complete. {} test(s) failed.".format(i_fail))

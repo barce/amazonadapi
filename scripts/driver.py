@@ -10,8 +10,12 @@ i_fail = 0
 
 # logging in test
 
+client = None
+created_order = None
+
 try:
   print('login test')
+  os.environ['AMZN_DEFAULT_PROFILE_ID'] = '3586026682031981'
   client = AmazonClient()
   client.refresh_token = os.environ['AMZN_REFRESH_TOKEN']
   client.auto_refresh_token()
@@ -19,6 +23,7 @@ try:
   client.get_profiles()
   client.profile_id == '3586026682031981'
 except:
+  print('------------------------------------------------------- failed login')
   i_fail += 1
 
 # orders = client.get_orders(dsp_advertiser_id)
@@ -28,6 +33,7 @@ except:
 try: 
   ads = client.get_advertisers()
 except:
+  print('------------------------------------------------------- failed get_advertisers')
   i_fail += 1
 
   
@@ -35,11 +41,13 @@ try:
   client.page_size = 1
   orders = client.get_orders('3678742709207')
 except: 
+  print('------------------------------------------------------- failed get_orders')
   i_fail += 1
 
 try:
   line_items = client.get_line_items('7287373481448')
 except: 
+  print('------------------------------------------------------- failed get_line_items')
   i_fail += 1
 
 print('testing CR & U')
@@ -52,8 +60,8 @@ try:
   
   order.advertiserId = '3678742709207'
   order.name = 'amazon api test {}'.format(time.time())
-  order.startDateTime = 1511909961000 # unix time * 1000
-  order.endDateTime = 1512514761000   # unix time * 1000
+  order.startDateTime = (int(time.time()) + 3600) * 1000
+  order.endDateTime = (int(time.time()) + (3600 * 24 )) * 1000 # unix time * 1000
   
   hash_order = {"object": {
       "advertiserId": {
@@ -68,6 +76,7 @@ try:
   
   created_order = client.create_order(hash_order)
 except:
+  print('------------------------------------------------------- failed create')
   i_fail += 1
 
 print(created_order)
@@ -96,6 +105,7 @@ try:
   print(updated_order)
   print(updated_order['object']['name'])
 except:
+  print('------------------------------------------------------- failed update')
   i_fail += 1
 
 if updated_order['object']['name'] != 'updated api test':
@@ -110,8 +120,8 @@ try:
   line_item.advertiserId = '3678742709207'
   line_item.type = "NON_GUARANTEED_DISPLAY"
   line_item.name = 'barce line_item'
-  line_item.startDateTime = 1511909961000
-  line_item.endDateTime = 1512514761000
+  line_item.startDateTime = (int(time.time()) + (3600 * 2)) * 1000
+  line_item.endDateTime = (int(time.time()) + (3600 * 23 )) * 1000 # unix time * 1000
   line_item.status = 'INACTIVE'
   line_item.budget = { "amount": 100, "deliveryProfile": "FRONTLOADED" }
   line_item.deliveryCaps = [ { "amount": 1.0, "recurrenceType": "DAILY" } ]
@@ -138,8 +148,10 @@ try:
   created_line_item = client.create_line_item(hashline_item)
   print(created_line_item)
 except:
+  print('------------------------------------------------------- failed create_line_item')
   i_fail += 1
 
+print("i_fail: {}".format(i_fail))
 
 line_item_id = created_line_item['object']['id']['value']
 try: 
@@ -167,9 +179,11 @@ try:
   updated_line_item = client.update_line_item(hashline_item)
   print(updated_line_item)
 except:
+  print('------------------------------------------------------- failed update')
   i_fail += 1
 
 if updated_line_item['object']['name'] != 'updated line item':
+  print('------------------------------------------------------- failed update')
   i_fail += 1
 else:
   print('update success...')
@@ -177,19 +191,27 @@ else:
 
 try:
   print('getting Canada data')
-  os.environ['AMZN_PROFILE_ID'] = '4285459679297609'
+  os.environ['AMZN_DEFAULT_PROFILE_ID'] = '4285459679297609'
   client = AmazonClient()
   client.refresh_token = os.environ['AMZN_REFRESH_TOKEN']
   client.auto_refresh_token()
   client.set_region()
+  print('--- canada header ---')
+  print(client.headers)
+  print('--- get profiles ---')
   client.get_profiles()
-  advertisers = client.get_advertisers('4285459679297609')
+  advertisers = client.get_advertisers()
   print('--- advertisers ---')
   print(advertisers)
   orders = client.get_orders('3196388450901')
   print('--- orders ---')
   print(orders)
-except:
+  order = client.get_order('6458183380401')
+  print('--- order 6458183380401 ---')
+  print(order)
+except Exception, e:
+  print('------------------------------------------------------- failed Canada')
+  print(e.message)
   i_fail += 1
 
 

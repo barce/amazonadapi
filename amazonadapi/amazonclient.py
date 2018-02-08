@@ -143,8 +143,6 @@ class AmazonClient:
         i_sentinel = 0
     return results_json
 
-      
-
   def set_region(self, region='US'):
     self.region = region
     try:
@@ -160,7 +158,6 @@ class AmazonClient:
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token}
     r = requests.get(url, headers=headers)
     results_json = r.json()
-
     print(results_json)
     
     try:
@@ -243,7 +240,6 @@ class AmazonClient:
           self.page_size = None
       else:
         url = "https://" + self.host + "/da/v1/advertisers/" + str(ad_id) + "/orders?page_token=" + self.page_token
-          
       headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
       r = requests.get(url, headers=headers)
       try:
@@ -257,7 +253,6 @@ class AmazonClient:
         self.page_token = matches[0]
 
       results_json = r.json()
-      print(results_json)
       json_ids = results_json['object']['objects']
       for json_id in json_ids:
         print(json_id)
@@ -297,7 +292,21 @@ class AmazonClient:
       print("expected result")
       return e
 
-    return results_json
+    response_json = {
+      'response_code': r,
+      'data': results_json,
+      'msg': '',
+      'request_body': (headers, r.url)
+    }
+
+    if 200 or 201 in r.status_code:
+      response_json['msg_type'] = 'success'
+
+    else:
+      response_json['msg_type'] = 'error'
+
+    return response_json
+    # return results_json
 
   # -H Authorization: Bearer self.token
   # -H Host: advertising-api.amazon

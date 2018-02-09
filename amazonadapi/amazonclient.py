@@ -276,37 +276,22 @@ class AmazonClient:
   # -H Content-Type: application/json
   # url: https://advertising-api.amazon.com/da/v1/orders/ORDER_ID
   def get_order(self, order_id):
+
     url = "https://" + self.host + "/da/v1/orders/" + order_id
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
     r = requests.get(url, headers=headers)
-    print(r)
-    print(r.url)
-    print(r.text)
     results_json = r.json()
-
-    try:
-      if 'error' in results_json:
+    # error checking
+    if 'error' in results_json:
+      if results_json['error']['httpStatusCode'] == '401':
+        # refresh api token
         self.error_check_json(results_json)
-        return results_json
-    except Exception as e:
-      print("expected result")
-      return e
+        # apply headers with new token
+        results_json = self.make_new_request(url)
 
-    response_json = {
-      'response_code': r,
-      'data': results_json,
-      'msg': '',
-      'request_body': (headers, r.url)
-    }
+    response_json = self.generate_json_response(r, results_json)
 
-    if 200 or 201 in r.status_code:
-      response_json['msg_type'] = 'success'
-
-    else:
-      response_json['msg_type'] = 'error'
-
-    return response_json
-    # return results_json
+    return json.dumps(response_json)
 
   # -H Authorization: Bearer self.token
   # -H Host: advertising-api.amazon
@@ -531,5 +516,32 @@ class AmazonClient:
     print('---error---')
     if results_json['error']['httpStatusCode'] == '401':
       refresh_results_json = self.auto_refresh_token()
+    return refresh_results_json
+
+  def make_new_request(self, url):
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host,
+               'Amazon-Advertising-API-Scope': self.profile_id}
+    r = requests.get(url, headers=headers)
+    results_json = r.json()
     return results_json
 
+  # create response_json method to abstract away the creation of return response that matt wants
+  def generate_json_response(self, r, results_json):
+    response_json = {
+      'response_code': r.status_code,
+      'data': results_json,
+      'request_body': ''
+    }
+    # if request is successful, ensure msg_type is success
+    if r.status_code in [200, 201]:
+      response_json['msg_type'] = 'success'
+      response_json['msg'] = ''
+
+    else:
+      response_json['msg_type'] = 'error'
+      # display the error message that comes back from request
+      response_json['msg'] = results_json['error']['errors'][0]['message']
+      # delete the error key within response to only show relevant error info
+      del response_json['data']['error']
+
+    return response_json

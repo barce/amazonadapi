@@ -285,11 +285,14 @@ class AmazonClient:
     if 'error' in results_json:
       if results_json['error']['httpStatusCode'] == '401':
         # refresh api token
-        self.error_check_json(results_json)
-        # apply headers with new token
-        results_json = self.make_new_request(url)
+        self.token = self.error_check_json(results_json)['access_token']
 
-    response_json = self.generate_json_response(r, results_json)
+        # apply headers with new token, return response and response dict
+        r, results_json = self.make_new_request(url, self.token)
+
+        response_json = self.generate_json_response(r, results_json)
+    else:
+      response_json = self.generate_json_response(r, results_json)
 
     return json.dumps(response_json)
 
@@ -518,12 +521,12 @@ class AmazonClient:
       refresh_results_json = self.auto_refresh_token()
     return refresh_results_json
 
-  def make_new_request(self, url):
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host,
+  def make_new_request(self, url, token):
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'Host': self.host,
                'Amazon-Advertising-API-Scope': self.profile_id}
     r = requests.get(url, headers=headers)
     results_json = r.json()
-    return results_json
+    return r, results_json
 
   # create response_json method to abstract away the creation of return response that matt wants
   def generate_json_response(self, r, results_json):
@@ -532,6 +535,7 @@ class AmazonClient:
       'data': results_json,
       'request_body': ''
     }
+
     # if request is successful, ensure msg_type is success
     if r.status_code in [200, 201]:
       response_json['msg_type'] = 'success'

@@ -19,8 +19,13 @@ class TestAmazonClient(TestCase):
 
     def test_get_order(self):
         b = amazonadapi.AmazonClient()
-        # get api token that was set by auto_refresh_token()
         b.token = os.environ['AMZN_TOKEN']
         order = b.get_order('7287373481448')
-        self.assertTrue('success', order['msg_type'])
+        self.assertTrue('"msg_type": "success"', order)
+
+    def test_get_orders(self):
+        b = amazonadapi.AmazonClient()
+        b.token = os.environ['AMZN_TOKEN']
+        orders = b.get_orders('3678742709207')
+        self.assertTrue('"msg_type": "success"', orders)
 

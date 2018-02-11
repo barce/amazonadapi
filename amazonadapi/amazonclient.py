@@ -228,6 +228,14 @@ class AmazonClient:
   # -H Amazon-Advertising-API-Scope: PROFILE_ID
   # -H Content-Type: application/json
   # url: https://advertising-api.amazon.com/da/v1/advertisers/AD_ID/orders
+
+
+  def get_order_campaign_ids(self, results_json, ids):
+    json_ids = results_json['object']['objects']
+    for json_id in json_ids:
+      ids.append(json_id['id']['value'])
+    return ids
+
   def get_orders(self, ad_id):
     i_sentinel = 1
     ids = []
@@ -246,29 +254,45 @@ class AmazonClient:
         self.next_page_url = r.headers['Link']
       except:
         i_sentinel = 0
-  
+
       if self.next_page_url != None:
         p = re.compile('.*page_token=(.*)>')
         matches = p.findall(self.next_page_url)
         self.page_token = matches[0]
 
       results_json = r.json()
-      json_ids = results_json['object']['objects']
-      for json_id in json_ids:
-        print(json_id)
-        ids.append(json_id['id']['value'])
 
-      try:
-        if 'error' in results_json:
-          self.error_check_json(results_json)
-          return results_json
-      except Exception as e:
-        print("expected result")
-        return e
+      # error checking json return
+      if 'error' in results_json:
+        # update access token
+        self.token = self.error_check_json(results_json)['access_token']
+        # apply headers with new token, return response and response dict
+        r, results_json = self.make_new_request(url, self.token)
 
-    self.page_token = None
-    self.page_size = None
-    return ids
+        ids = self.get_order_campaign_ids(results_json, ids)
+
+        # use results_json to create updated json dict
+        response_json = self.generate_json_response(r, results_json)
+        # generate list of campaign ids and add to data object
+        response_json['data']['ids'] = ids
+        # delete unnecessary info
+        del response_json['data']['object']
+
+        self.page_token = None
+        self.page_size = None
+
+      else:
+        ids = self.get_order_campaign_ids(results_json, ids)
+        response_json = self.generate_json_response(r, results_json)
+        # generate list of campaign ids and add to data object
+        response_json['data']['ids'] = ids
+        # delete unnecessary info
+        del response_json['data']['object']
+
+        self.page_token = None
+        self.page_size = None
+
+      return json.dumps(response_json)
 
   # -H Authorization: Bearer self.token
   # -H Host: advertising-api.amazon
@@ -283,14 +307,16 @@ class AmazonClient:
     results_json = r.json()
     # error checking
     if 'error' in results_json:
-      if results_json['error']['httpStatusCode'] == '401':
-        # refresh api token
-        self.token = self.error_check_json(results_json)['access_token']
+      # if results_json['error']['httpStatusCode'] == '401':
 
-        # apply headers with new token, return response and response dict
-        r, results_json = self.make_new_request(url, self.token)
+      # refresh api token
+      self.token = self.error_check_json(results_json)['access_token']
 
-        response_json = self.generate_json_response(r, results_json)
+      # apply headers with new token, return response and response dict
+      r, results_json = self.make_new_request(url, self.token)
+
+      # use results_json to create updated json dict
+      response_json = self.generate_json_response(r, results_json)
     else:
       response_json = self.generate_json_response(r, results_json)
 

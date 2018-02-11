@@ -543,7 +543,7 @@ class AmazonClient:
     print('---error---')
     print(results_json)
     print('---error---')
-    if results_json['error']['httpStatusCode'] == '401':
+    if results_json['error']['httpStatusCode'] in ['400', '401']:
       refresh_results_json = self.auto_refresh_token()
     return refresh_results_json
 

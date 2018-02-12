@@ -92,38 +92,38 @@ class AmazonClient:
     except KeyError as e:
       self.host = 'advertising-api.amazon.com'
 
-  def connect(self):
-    get_token_url = "https://api.amazon.com/auth/o2/token"
-    payload = "grant_type=authorization_code&code=" + self.amzn_code + "&redirect_uri=https%3A//www.accuenplatform.com/accounts/login/%3Fnext%3D/backstage/api/advertiser&client_id=" + self.client_id + "&client_secret=" + self.client_secret
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    print(get_token_url)
-    print(payload)
-    print(headers)
-    r = requests.post(get_token_url, data=payload, headers=headers)
-    results_json = r.json()
-    return results_json
+  # def connect(self):
+  #   get_token_url = "https://api.amazon.com/auth/o2/token"
+  #   payload = "grant_type=authorization_code&code=" + self.amzn_code + "&redirect_uri=https%3A//www.accuenplatform.com/accounts/login/%3Fnext%3D/backstage/api/advertiser&client_id=" + self.client_id + "&client_secret=" + self.client_secret
+  #   headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+  #   print(get_token_url)
+  #   print(payload)
+  #   print(headers)
+  #   r = requests.post(get_token_url, data=payload, headers=headers)
+  #   results_json = r.json()
+  #   return results_json
 
   def get_amazon_auth_url(self):
     print("Go to this URL:")
     print(self.auth_url)
 
 
-  def cli_auth_dance(self):
-    self.get_amazon_auth_url()
-    if sys.version_info < (3, 0):
-      self.amzn_code = raw_input("Enter Amazon auth code: ")
-    else:
-      self.amzn_code = input("Enter Amazon auth code: ")
-
-    print("Auth code, {}, entered.".format(self.amzn_code))
-    self.raw_token_results = self.connect()
-    print("raw_token_results:")
-    print(self.raw_token_results)
-    self.token = self.raw_token_results['access_token']
-    self.refresh_token = self.raw_token_results['refresh_token']
-    profiles_json = self.get_profiles()
-    self.profile_id = str(profiles_json[0]['profileId'])
-    return self.token
+  # def cli_auth_dance(self):
+  #   self.get_amazon_auth_url()
+  #   if sys.version_info < (3, 0):
+  #     self.amzn_code = raw_input("Enter Amazon auth code: ")
+  #   else:
+  #     self.amzn_code = input("Enter Amazon auth code: ")
+  #
+  #   print("Auth code, {}, entered.".format(self.amzn_code))
+  #   self.raw_token_results = self.connect()
+  #   print("raw_token_results:")
+  #   print(self.raw_token_results)
+  #   self.token = self.raw_token_results['access_token']
+  #   self.refresh_token = self.raw_token_results['refresh_token']
+  #   profiles_json = self.get_profiles()
+  #   self.profile_id = str(profiles_json[0]['profileId'])
+  #   return self.token
 
   def auto_refresh_token(self):
     i_sentinel = 1
@@ -318,24 +318,9 @@ class AmazonClient:
 
     url = "https://" + self.host + "/da/v1/orders/" + order_id
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
-    r = requests.get(url, headers=headers)
-    results_json = r.json()
-    # error checking
-    if 'error' in results_json:
-      # if results_json['error']['httpStatusCode'] == '401':
 
-      # refresh api token
-      self.token = self.error_check_json(results_json)['access_token']
-
-      # apply headers with new token, return response and response dict
-      r, results_json = self.make_new_request(url, self.token)
-
-      # use results_json to create updated json dict
-      response_json = self.generate_json_response(r, results_json)
-    else:
-      response_json = self.generate_json_response(r, results_json)
-
-    return json.dumps(response_json)
+    r = self.make_get_request(url, headers)
+    return r
 
   # -H Authorization: Bearer self.token
   # -H Host: advertising-api.amazon
@@ -440,21 +425,23 @@ class AmazonClient:
     #     }
 
     response = requests.post(url, headers=headers, verify=False, data=json.dumps(self.data))
-    print(response)
-    print(response.url)
-    print(response.text)
-    print(response.json())
     results_json = response.json()
 
-    try:
-      if 'error' in results_json:
-        self.error_check_json(results_json)
-        return results_json
-    except Exception as e:
-      print("expected result")
-      return e
+    if 'error' in results_json:
+      # if results_json['error']['httpStatusCode'] == '401':
 
-    return response.json()
+      # refresh api token
+      self.token = self.error_check_json(results_json)['access_token']
+
+      # apply headers with new token, return response and response dict
+      r, results_json = self.make_new_request(url, self.token)
+
+      # use results_json to create updated json dict
+      response_json = self.generate_json_response(r, results_json)
+    else:
+      response_json = self.generate_json_response(response, results_json)
+
+    return json.dumps(response_json)
 
   def update_order(self, order):
     url = "https://" + self.host + "/da/v1/orders"
@@ -608,3 +595,21 @@ class AmazonClient:
       del response_json['data']['error']
 
     return response_json
+
+  def make_get_request(self, url, headers):
+    # if request not successful, refresh access token
+    r = requests.get(url, headers=headers)
+    results_json = r.json()
+
+    # error checking
+    if 'error' in results_json:
+      # refresh api token
+      self.token = self.error_check_json(results_json)['access_token']
+      # apply headers with new token, return response and response dict
+      r, results_json = self.make_new_request(url, self.token)
+      # use results_json to create updated json dict
+      response_json = self.generate_json_response(r, results_json)
+    else:
+      response_json = self.generate_json_response(r, results_json)
+
+    return json.dumps(response_json)

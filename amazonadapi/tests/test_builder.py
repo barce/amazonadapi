@@ -31,3 +31,14 @@ class TestAmazonClient(TestCase):
         orders = b.get_orders('2631082831052')
         self.assertTrue('"msg_type": "success"', orders)
 
+    def test_get_line_item(self):
+        b = amazonadapi.AmazonClient()
+        b.token = os.environ['AMZN_TOKEN']
+        line_item = b.get_line_item('1590853620901')
+        self.assertTrue('"msg_type": "success"', line_item)
+
+    def test_get_line_items(self):
+        b = amazonadapi.AmazonClient()
+        b.token = os.environ['AMZN_TOKEN']
+        line_items = b.get_line_items('7287373481448')
+        self.assertTrue('"msg_type": "success"', line_items)

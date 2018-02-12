@@ -27,7 +27,6 @@ class TestAmazonClient(TestCase):
     def test_get_orders(self):
         b = amazonadapi.AmazonClient()
         b.token = os.environ['AMZN_TOKEN']
-        # b.token = b.auto_refresh_token()['access_token']
         orders = b.get_orders('2631082831052')
         self.assertTrue('"msg_type": "success"', orders)
 
@@ -42,3 +41,9 @@ class TestAmazonClient(TestCase):
         b.token = os.environ['AMZN_TOKEN']
         line_items = b.get_line_items('7287373481448')
         self.assertTrue('"msg_type": "success"', line_items)
+
+    def test_get_advertisers(self):
+        b = amazonadapi.AmazonClient()
+        b.token = os.environ['AMZN_TOKEN']
+        advertisers = b.get_advertisers()
+        self.assertTrue('"msg_type": "success"', advertisers)

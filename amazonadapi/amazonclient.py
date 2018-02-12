@@ -160,15 +160,17 @@ class AmazonClient:
     results_json = r.json()
 
     # if error status code
-    if results_json['code'] in ['400', '401']:
-      # update access token
-      self.token = self.auto_refresh_token()['access_token']
+    if type(results_json) != list:
+      if results_json['code']:
+        if results_json['code'] in ['400', '401']:
+          # update access token
+          self.token = self.auto_refresh_token()['access_token']
 
-      # apply headers with new token, return response and response dict
-      r, results_json = self.make_new_request(url, self.token)
+          # apply headers with new token, return response and response dict
+          r, results_json = self.make_new_request(url, self.token)
 
-      # use results_json to create updated json dict
-      response_json = self.generate_json_response(r, results_json)
+          # use results_json to create updated json dict
+          response_json = self.generate_json_response(r, results_json)
     else:
       response_json = self.generate_json_response(r, results_json)
 
@@ -182,6 +184,7 @@ class AmazonClient:
   def get_advertisers(self):
     i_sentinel = 1
     ids = []
+    response_json = {}
     while i_sentinel == 1:
       if self.page_token == None:
         if self.page_size == None:
@@ -194,10 +197,7 @@ class AmazonClient:
 
       headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
 
-      print(url)
-      print(headers)
       r = requests.get(url, headers=headers)
-      print(r)
       try:
         print(r.headers['Link'])
         self.next_page_url = r.headers['Link']
@@ -210,23 +210,35 @@ class AmazonClient:
         self.page_token = matches[0]
 
       results_json = r.json()
-      json_ids = results_json['object']['objects']
-      for json_id in json_ids:
-        print(json_id)
-        ids.append(json_id['id']['value'])
 
-      try:
-        if 'error' in results_json:
-          self.error_check_json(results_json)
-          return results_json
-      except Exception as e:
-        print("expected result")
-        return e
+      # error checking json return
+      if 'error' in results_json:
+        # update access token
+        self.token = self.error_check_json(results_json)['access_token']
+        # apply headers with new token, return response and response dict
+        r, results_json = self.make_new_request(url, self.token)
+
+        ids = self.get_order_campaign_ids(results_json, ids)
+
+        # use results_json to create updated json dict
+        response_json = self.generate_json_response(r, results_json)
+        # generate list of campaign ids and add to data object
+        response_json['data']['ids'] = ids
+        # delete unnecessary info
+        del response_json['data']['object']
+
+      else:
+        ids = self.get_order_campaign_ids(results_json, ids)
+        response_json = self.generate_json_response(r, results_json)
+        # generate list of campaign ids and add to data object
+        response_json['data']['ids'] = ids
+        # delete unnecessary info
+        del response_json['data']['object']
 
     self.page_token = None
     self.page_size = None
 
-    return ids
+    return json.dumps(response_json)
 
   # -H Authorization: Bearer self.token
   # -H Host: advertising-api.amazon
@@ -244,6 +256,7 @@ class AmazonClient:
   def get_orders(self, ad_id):
     i_sentinel = 1
     ids = []
+    response_json = {}
     while i_sentinel == 1:
       if self.page_token == None:
         if self.page_size == None:
@@ -283,9 +296,6 @@ class AmazonClient:
         # delete unnecessary info
         del response_json['data']['object']
 
-        self.page_token = None
-        self.page_size = None
-
       else:
         ids = self.get_order_campaign_ids(results_json, ids)
         response_json = self.generate_json_response(r, results_json)
@@ -294,10 +304,10 @@ class AmazonClient:
         # delete unnecessary info
         del response_json['data']['object']
 
-        self.page_token = None
-        self.page_size = None
+    self.page_token = None
+    self.page_size = None
 
-      return json.dumps(response_json)
+    return json.dumps(response_json)
 
   # -H Authorization: Bearer self.token
   # -H Host: advertising-api.amazon
@@ -335,6 +345,7 @@ class AmazonClient:
   def get_line_items(self, order_id):
     i_sentinel = 1
     ids = []
+    response_json = {}
     while i_sentinel == 1:
       if self.page_token == None:
         if self.page_size == None:
@@ -376,9 +387,6 @@ class AmazonClient:
         # delete unnecessary info
         del response_json['data']['object']
 
-        self.page_token = None
-        self.page_size = None
-
       else:
         ids = self.get_order_campaign_ids(results_json, ids)
         response_json = self.generate_json_response(r, results_json)
@@ -387,28 +395,10 @@ class AmazonClient:
         # delete unnecessary info
         del response_json['data']['object']
 
-        self.page_token = None
-        self.page_size = None
+    self.page_token = None
+    self.page_size = None
 
-      return json.dumps(response_json)
-
-      # json_ids = results_json['object']['objects']
-      # for json_id in json_ids:
-      #   print(json_id)
-      #   ids.append(json_id['id']['value'])
-      #
-      # try:
-      #   if 'error' in results_json:
-      #     self.error_check_json(results_json)
-      #     return results_json
-      # except Exception as e:
-      #   print("expected result")
-      #   return e
-
-
-    # self.page_token = None
-    # self.page_size = None
-    # return ids
+    return json.dumps(response_json)
 
   def get_line_item(self, line_item_id):
     url = "https://" + self.host + "/da/v1/line-items/" + line_item_id
@@ -431,17 +421,6 @@ class AmazonClient:
       response_json = self.generate_json_response(r, results_json)
 
     return json.dumps(response_json)
-
-
-    # try:
-    #   if 'error' in results_json:
-    #     self.error_check_json(results_json)
-    #     return results_json
-    # except Exception as e:
-    #   print("expected result")
-    #   return e
-    #
-    # return results_json
 
   def create_order(self, order):
     url = "https://" + self.host + "/da/v1/orders"

@@ -597,11 +597,11 @@ class AmazonClient:
     return response_json
 
   def make_get_request(self, url, headers):
-    # if request not successful, refresh access token
     r = requests.get(url, headers=headers)
     results_json = r.json()
 
     # error checking
+    # if request not successful, refresh access token
     if 'error' in results_json:
       # refresh api token
       self.token = self.error_check_json(results_json)['access_token']

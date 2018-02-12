@@ -81,11 +81,11 @@ class AmazonClient:
     self.profile_id = os.environ['AMZN_DEFAULT_PROFILE_ID']
 
     try:
-        self.refresh_token = os.environ['AMZN_REFRESH_TOKEN']
+      self.refresh_token = os.environ['AMZN_REFRESH_TOKEN']
     except KeyError as e:
-        print("error missing:")
-        print(e)
-    
+      print("error missing:")
+      print(e)
+
     self.region_list = {"UK": "advertising-api-eu.amazon.com", "IN": "advertising-api-eu.amazon.com", "US": "advertising-api.amazon.com", "JP": "advertising-api-fe.amazon.com"}
     try:
       self.host = self.region_list[os.environ['AMZN_REGION']]
@@ -158,16 +158,21 @@ class AmazonClient:
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token}
     r = requests.get(url, headers=headers)
     results_json = r.json()
-    print(results_json)
-    
-    try:
-      if 'error' in results_json:
-        self.error_check_json(results_json)
-    except Exception as e:
-      print("expected result")
-      return e
 
-    return results_json
+    # if error status code
+    if results_json['code'] in ['400', '401']:
+      # update access token
+      self.token = self.auto_refresh_token()['access_token']
+
+      # apply headers with new token, return response and response dict
+      r, results_json = self.make_new_request(url, self.token)
+
+      # use results_json to create updated json dict
+      response_json = self.generate_json_response(r, results_json)
+    else:
+      response_json = self.generate_json_response(r, results_json)
+
+    return json.dumps(response_json)
 
   # -H Authorization: Bearer self.token
   # -H Host: advertising-api.amazon
@@ -186,9 +191,9 @@ class AmazonClient:
           self.page_size = None
       else:
         url = "https://" + self.host + "/da/v1/advertisers?page_token=" + self.page_token
-      
+
       headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
-  
+
       print(url)
       print(headers)
       r = requests.get(url, headers=headers)
@@ -198,7 +203,7 @@ class AmazonClient:
         self.next_page_url = r.headers['Link']
       except:
         i_sentinel = 0
-  
+
       if self.next_page_url != None:
         p = re.compile('.*page_token=(.*)>')
         matches = p.findall(self.next_page_url)
@@ -209,8 +214,8 @@ class AmazonClient:
       for json_id in json_ids:
         print(json_id)
         ids.append(json_id['id']['value'])
-  
-      try:  
+
+      try:
         if 'error' in results_json:
           self.error_check_json(results_json)
           return results_json
@@ -334,12 +339,12 @@ class AmazonClient:
       if self.page_token == None:
         if self.page_size == None:
           url = "https://" + self.host + "/da/v1/orders/" + order_id + "/line-items"
-        else: 
+        else:
           url = "https://" + self.host + "/da/v1/orders/" + order_id + "/line-items?page_size=" + str(self.page_size)
           self.page_size = None
       else:
         url = "https://" + self.host + "/da/v1/orders/" + order_id + "/line-items?page_token=" + self.page_token
-        
+
       headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
       r = requests.get(url, headers=headers)
 
@@ -347,7 +352,7 @@ class AmazonClient:
         self.next_page_url = r.headers['Link']
       except:
         i_sentinel = 0
-  
+
       if self.next_page_url != None:
         p = re.compile('.*page_token=(.*)>')
         matches = p.findall(self.next_page_url)
@@ -359,7 +364,7 @@ class AmazonClient:
         print(json_id)
         ids.append(json_id['id']['value'])
 
-      try:  
+      try:
         if 'error' in results_json:
           self.error_check_json(results_json)
           return results_json
@@ -382,28 +387,28 @@ class AmazonClient:
         self.error_check_json(results_json)
         return results_json
     except Exception as e:
-        print("expected result")
-        return e
+      print("expected result")
+      return e
 
     return results_json
-      
+
   def create_order(self, order):
     url = "https://" + self.host + "/da/v1/orders"
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
 
     self.data = order
 
-#     self.data = {"object": {
-#         "advertiserId": {
-#             "value": order.advertiserId
-#         },
-#         "name": order.name,
-#         "startDateTime": order.startDateTime,
-#         "endDateTime": order.endDateTime,
-#         "deliveryActivationStatus": order.status
-#         }
-#     }
-    
+    #     self.data = {"object": {
+    #         "advertiserId": {
+    #             "value": order.advertiserId
+    #         },
+    #         "name": order.name,
+    #         "startDateTime": order.startDateTime,
+    #         "endDateTime": order.endDateTime,
+    #         "deliveryActivationStatus": order.status
+    #         }
+    #     }
+
     response = requests.post(url, headers=headers, verify=False, data=json.dumps(self.data))
     print(response)
     print(response.url)
@@ -416,8 +421,8 @@ class AmazonClient:
         self.error_check_json(results_json)
         return results_json
     except Exception as e:
-        print("expected result")
-        return e
+      print("expected result")
+      return e
 
     return response.json()
 
@@ -427,20 +432,20 @@ class AmazonClient:
 
 
     self.data = order
-#     self.data = {"object": {
-#         "id": {
-#             "value": order.id
-#         },
-#         "advertiserId": {
-#             "value": order.advertiserId
-#         },
-#         "name": order.name,
-#         "startDateTime": order.startDateTime,
-#         "endDateTime": order.endDateTime,
-#         "deliveryActivationStatus": order.status
-#         }
-#     }
- 
+    #     self.data = {"object": {
+    #         "id": {
+    #             "value": order.id
+    #         },
+    #         "advertiserId": {
+    #             "value": order.advertiserId
+    #         },
+    #         "name": order.name,
+    #         "startDateTime": order.startDateTime,
+    #         "endDateTime": order.endDateTime,
+    #         "deliveryActivationStatus": order.status
+    #         }
+    #     }
+
     response = requests.put(url, headers=headers, verify=False, data=json.dumps(self.data))
     print(response)
     print(response.url)
@@ -457,25 +462,25 @@ class AmazonClient:
 
     return results_json
 
-      
+
   def create_line_item(self, line_item):
     url = "https://" + self.host + "/da/v1/line-items"
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
 
     self.data = line_item
-#     {"object": {
-#         "orderId": {
-#             "value": line_item.orderId
-#         },
-#         "name": line_item.name,
-#         "type": line_item.type,
-#         "startDateTime": line_item.startDateTime,
-#         "endDateTime": line_item.endDateTime,
-#         "deliveryActivationStatus": line_item.status,
-#         "budget" : line_item.budget,
-#         "deliveryCaps" : line_item.deliveryCaps
-#         }
-#     }
+    #     {"object": {
+    #         "orderId": {
+    #             "value": line_item.orderId
+    #         },
+    #         "name": line_item.name,
+    #         "type": line_item.type,
+    #         "startDateTime": line_item.startDateTime,
+    #         "endDateTime": line_item.endDateTime,
+    #         "deliveryActivationStatus": line_item.status,
+    #         "budget" : line_item.budget,
+    #         "deliveryCaps" : line_item.deliveryCaps
+    #         }
+    #     }
 
     print(json.dumps(self.data))
     print("--- posting data ---")
@@ -485,7 +490,7 @@ class AmazonClient:
     print(response.text)
     print(response.json())
     results_json = response.json()
-    try:  
+    try:
       if 'error' in results_json:
         self.error_check_json(results_json)
         return results_json
@@ -503,22 +508,22 @@ class AmazonClient:
 
     self.data = line_item
 
-#     self.data = {"object": {
-#         "id": {
-#             "value": line_item.id
-#         },
-#         "orderId": {
-#             "value": line_item.orderId
-#         },
-#         "name": line_item.name,
-#         "type": line_item.type,
-#         "startDateTime": line_item.startDateTime,
-#         "endDateTime": line_item.endDateTime,
-#         "deliveryActivationStatus": line_item.status,
-#         "budget" : line_item.budget,
-#         "deliveryCaps" : line_item.deliveryCaps
-#         }
-#     }
+    #     self.data = {"object": {
+    #         "id": {
+    #             "value": line_item.id
+    #         },
+    #         "orderId": {
+    #             "value": line_item.orderId
+    #         },
+    #         "name": line_item.name,
+    #         "type": line_item.type,
+    #         "startDateTime": line_item.startDateTime,
+    #         "endDateTime": line_item.endDateTime,
+    #         "deliveryActivationStatus": line_item.status,
+    #         "budget" : line_item.budget,
+    #         "deliveryCaps" : line_item.deliveryCaps
+    #         }
+    #     }
 
     print(json.dumps(self.data))
     print("--- posting data ---")
@@ -538,7 +543,6 @@ class AmazonClient:
 
     return results_json
 
-      
   def error_check_json(self, results_json):
     print('---error---')
     print(results_json)
@@ -561,7 +565,6 @@ class AmazonClient:
       'data': results_json,
       'request_body': ''
     }
-
     # if request is successful, ensure msg_type is success
     if r.status_code in [200, 201]:
       response_json['msg_type'] = 'success'

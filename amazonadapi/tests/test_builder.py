@@ -3,6 +3,7 @@ from unittest import TestCase
 import os
 import amazonadapi
 from amazonadapi import *
+import json
 
 
 class TestAmazonClient(TestCase):
@@ -15,7 +16,7 @@ class TestAmazonClient(TestCase):
         b = amazonadapi.AmazonClient()
         b.token = os.environ['AMZN_TOKEN']
         json_profile = b.get_profiles()
-        self.assertTrue('USD', json_profile[0]['currencyCode'])
+        self.assertTrue('"msg_type": "success"', json_profile)
 
     def test_get_order(self):
         b = amazonadapi.AmazonClient()
@@ -26,6 +27,7 @@ class TestAmazonClient(TestCase):
     def test_get_orders(self):
         b = amazonadapi.AmazonClient()
         b.token = os.environ['AMZN_TOKEN']
-        orders = b.get_orders('3678742709207')
+        # b.token = b.auto_refresh_token()['access_token']
+        orders = b.get_orders('2631082831052')
         self.assertTrue('"msg_type": "success"', orders)
 

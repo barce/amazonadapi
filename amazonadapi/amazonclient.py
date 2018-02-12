@@ -392,10 +392,6 @@ class AmazonClient:
 
       return json.dumps(response_json)
 
-
-
-
-
       # json_ids = results_json['object']['objects']
       # for json_id in json_ids:
       #   print(json_id)
@@ -419,15 +415,33 @@ class AmazonClient:
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
     r = requests.get(url, headers=headers)
     results_json = r.json()
-    try:
-      if 'error' in results_json:
-        self.error_check_json(results_json)
-        return results_json
-    except Exception as e:
-      print("expected result")
-      return e
 
-    return results_json
+    if 'error' in results_json:
+      # if results_json['error']['httpStatusCode'] == '401':
+
+      # refresh api token
+      self.token = self.error_check_json(results_json)['access_token']
+
+      # apply headers with new token, return response and response dict
+      r, results_json = self.make_new_request(url, self.token)
+
+      # use results_json to create updated json dict
+      response_json = self.generate_json_response(r, results_json)
+    else:
+      response_json = self.generate_json_response(r, results_json)
+
+    return json.dumps(response_json)
+
+
+    # try:
+    #   if 'error' in results_json:
+    #     self.error_check_json(results_json)
+    #     return results_json
+    # except Exception as e:
+    #   print("expected result")
+    #   return e
+    #
+    # return results_json
 
   def create_order(self, order):
     url = "https://" + self.host + "/da/v1/orders"

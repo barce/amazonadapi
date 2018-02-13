@@ -156,25 +156,11 @@ class AmazonClient:
   def get_profiles(self):
     url = "https://" + self.host + "/v1/profiles"
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token}
-    r = requests.get(url, headers=headers)
-    results_json = r.json()
+    # r = requests.get(url, headers=headers)
+    # results_json = r.json()
 
-    # if error status code
-    if type(results_json) != list:
-      if results_json['code']:
-        if results_json['code'] in ['400', '401']:
-          # update access token
-          self.token = self.auto_refresh_token()['access_token']
-
-          # apply headers with new token, return response and response dict
-          r, results_json = self.make_new_request(url, self.token)
-
-          # use results_json to create updated json dict
-          response_json = self.generate_json_response(r, results_json)
-    else:
-      response_json = self.generate_json_response(r, results_json)
-
-    return json.dumps(response_json)
+    r = self.make_get_request(url, headers)
+    return r
 
   # -H Authorization: Bearer self.token
   # -H Host: advertising-api.amazon
@@ -216,7 +202,7 @@ class AmazonClient:
         # update access token
         self.token = self.error_check_json(results_json)['access_token']
         # apply headers with new token, return response and response dict
-        r, results_json = self.make_new_request(url, self.token)
+        r, results_json = self.make_new_request(url, self.token, 'GET')
 
         ids = self.get_order_campaign_ids(results_json, ids)
 
@@ -285,7 +271,7 @@ class AmazonClient:
         # update access token
         self.token = self.error_check_json(results_json)['access_token']
         # apply headers with new token, return response and response dict
-        r, results_json = self.make_new_request(url, self.token)
+        r, results_json = self.make_new_request(url, self.token, 'GET')
 
         ids = self.get_order_campaign_ids(results_json, ids)
 
@@ -361,7 +347,7 @@ class AmazonClient:
         # update access token
         self.token = self.error_check_json(results_json)['access_token']
         # apply headers with new token, return response and response dict
-        r, results_json = self.make_new_request(url, self.token)
+        r, results_json = self.make_new_request(url, self.token, 'GET')
 
         ids = self.get_order_campaign_ids(results_json, ids)
 
@@ -409,24 +395,12 @@ class AmazonClient:
     #         }
     #     }
 
-    response = requests.post(url, headers=headers, verify=False, data=json.dumps(self.data))
-    results_json = response.json()
+    # response = requests.post(url, headers=headers, verify=False, data=json.dumps(self.data))
+    # results_json = response.json()
 
-    if 'error' in results_json:
-      # if results_json['error']['httpStatusCode'] == '401':
+    r = self.make_post_request(url, headers, self.data)
+    return r
 
-      # refresh api token
-      self.token = self.error_check_json(results_json)['access_token']
-
-      # apply headers with new token, return response and response dict
-      r, results_json = self.make_new_request(url, self.token)
-
-      # use results_json to create updated json dict
-      response_json = self.generate_json_response(r, results_json)
-    else:
-      response_json = self.generate_json_response(response, results_json)
-
-    return json.dumps(response_json)
 
   def update_order(self, order):
     url = "https://" + self.host + "/da/v1/orders"
@@ -549,14 +523,19 @@ class AmazonClient:
     print('---error---')
     print(results_json)
     print('---error---')
-    if results_json['error']['httpStatusCode'] in ['400', '401']:
-      refresh_results_json = self.auto_refresh_token()
+    # if results_json['error']['httpStatusCode'] in ['400', '401'] or results_json['code'] in ['400', '401']:
+    refresh_results_json = self.auto_refresh_token()
     return refresh_results_json
 
-  def make_new_request(self, url, token):
+  def make_new_request(self, url, token, method_type, data=None):
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'Host': self.host,
                'Amazon-Advertising-API-Scope': self.profile_id}
-    r = requests.get(url, headers=headers)
+    if method_type == 'GET':
+      r = requests.get(url, headers=headers)
+    if method_type == 'POST':
+      r = requests.post(url, headers=headers, verify=False, data=json.dumps(data))
+    if method_type == 'PUT':
+      r = requests.put(url, headers=headers, verify=False, data=json.dumps(data))
     results_json = r.json()
     return r, results_json
 
@@ -565,7 +544,7 @@ class AmazonClient:
     response_json = {
       'response_code': r.status_code,
       'data': results_json,
-      'request_body': ''
+      'request_body': results_json
     }
     # if request is successful, ensure msg_type is success
     if r.status_code in [200, 201]:
@@ -587,14 +566,34 @@ class AmazonClient:
 
     # error checking
     # if request not successful, refresh access token
-    if 'error' in results_json:
+    if 'error' in results_json or results_json['code'] in ['400', '401']:
       # refresh api token
       self.token = self.error_check_json(results_json)['access_token']
       # apply headers with new token, return response and response dict
-      r, results_json = self.make_new_request(url, self.token)
+      r, results_json = self.make_new_request(url, self.token, 'GET')
       # use results_json to create updated json dict
       response_json = self.generate_json_response(r, results_json)
     else:
       response_json = self.generate_json_response(r, results_json)
 
     return json.dumps(response_json)
+
+  def make_post_request(self, url, headers, data):
+    r = requests.post(url, headers=headers, verify=False, data=json.dumps(data))
+    results_json = r.json()
+    if 'error' in results_json:
+      # if results_json['error']['httpStatusCode'] == '401':
+
+      # refresh api token
+      self.token = self.error_check_json(results_json)['access_token']
+
+      # apply headers with new token, return response and response dict
+      r, results_json = self.make_new_request(url, self.token, 'POST', data)
+
+      # use results_json to create updated json dict
+      response_json = self.generate_json_response(r, results_json)
+    else:
+      response_json = self.generate_json_response(r, results_json)
+
+    return json.dumps(response_json)
+

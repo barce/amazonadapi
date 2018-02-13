@@ -4,9 +4,10 @@ import os
 import amazonadapi
 from amazonadapi import *
 import json
-
+import time
 
 class TestAmazonClient(TestCase):
+
     def test_config(self):
         b = amazonadapi.AmazonClient()
         self.assertTrue(isinstance(b, AmazonClient))
@@ -47,3 +48,27 @@ class TestAmazonClient(TestCase):
         b.token = os.environ['AMZN_TOKEN']
         advertisers = b.get_advertisers()
         self.assertTrue('"msg_type": "success"', advertisers)
+
+    def test_create_order(self):
+        b = amazonadapi.AmazonClient()
+        b.token = os.environ['AMZN_TOKEN']
+        order = AmazonOrder()
+        order.advertiserId = '3678742709207'
+        order.name = 'amazon api test {}'.format(time.time())
+        order.startDateTime = (int(time.time()) + 3600) * 1000
+        order.endDateTime = (int(time.time()) + (3600 * 24)) * 1000  # unix time * 1000
+
+        hash_order = {
+            "object": {
+                "advertiserId": {
+                    "value": order.advertiserId
+                },
+                "name": order.name,
+                "startDateTime": order.startDateTime,
+                "endDateTime": order.endDateTime,
+                "deliveryActivationStatus": order.status
+            }
+        }
+
+        new_order = b.create_order(hash_order)
+        self.assertTrue('"msg_type": "success"', new_order)

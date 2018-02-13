@@ -566,7 +566,7 @@ class AmazonClient:
 
     # error checking
     # if request not successful, refresh access token
-    if 'error' in results_json or results_json['code'] in ['400', '401']:
+    if 'error' in results_json or 'code' in results_json:
       # refresh api token
       self.token = self.error_check_json(results_json)['access_token']
       # apply headers with new token, return response and response dict

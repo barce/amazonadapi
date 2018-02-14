@@ -22,7 +22,7 @@ class TestAmazonClient(TestCase):
     def test_get_order(self):
         b = amazonadapi.AmazonClient()
         b.token = os.environ['AMZN_TOKEN']
-        order = b.get_order('7287373481448')
+        order = b.get_order('6198741030901')
         self.assertTrue('"msg_type": "success"', order)
 
     def test_get_orders(self):
@@ -54,7 +54,7 @@ class TestAmazonClient(TestCase):
         b.token = os.environ['AMZN_TOKEN']
         order = AmazonOrder()
         order.advertiserId = '3678742709207'
-        order.name = 'amazon api test {}'.format(time.time())
+        order.name = 'amazon api test aruns {}'.format(time.time())
         order.startDateTime = (int(time.time()) + 3600) * 1000
         order.endDateTime = (int(time.time()) + (3600 * 24)) * 1000  # unix time * 1000
 
@@ -71,4 +71,34 @@ class TestAmazonClient(TestCase):
         }
 
         new_order = b.create_order(hash_order)
+        self.assertTrue('"msg_type": "success"', new_order)
+
+    def test_update_order(self):
+        b = amazonadapi.AmazonClient()
+        b.token = os.environ['AMZN_TOKEN']
+        order = b.get_order('5052675470301')
+        order = json.loads(order)
+        updated_order = AmazonOrder()
+        updated_order.advertiserId = order['data'][0]['object']['advertiserId']['value']
+        updated_order.id = order['data'][0]['object']['id']['value']
+        updated_order.name = order['data'][0]['object']['name'] = 'amazon api updated test finalssss {}'.format(time.time())
+        updated_order.startDateTime = order['data'][0]['object']['startDateTime']
+        updated_order.endDateTime = order['data'][0]['object']['endDateTime']
+        updated_order.status = order['data'][0]['object']['deliveryActivationStatus']
+
+        hash_order = {
+            "object": {
+                "advertiserId": {
+                    "value": updated_order.advertiserId
+                },
+                "id": {
+                    "value": updated_order.id
+                },
+                "name": updated_order.name,
+                "startDateTime": updated_order.startDateTime,
+                "endDateTime": updated_order.endDateTime,
+                "deliveryActivationStatus": updated_order.status
+            }
+        }
+        new_order = b.update_order(hash_order)
         self.assertTrue('"msg_type": "success"', new_order)

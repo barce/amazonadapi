@@ -17,6 +17,7 @@ class TestAmazonClient(TestCase):
         b = amazonadapi.AmazonClient()
         b.token = os.environ['AMZN_TOKEN']
         json_profile = b.get_profiles()
+        json_profile = json.loads(json_profile)
         self.assertTrue('"msg_type": "success"', json_profile)
 
     def test_get_order(self):
@@ -54,7 +55,7 @@ class TestAmazonClient(TestCase):
         b.token = os.environ['AMZN_TOKEN']
         order = AmazonOrder()
         order.advertiserId = '3678742709207'
-        order.name = 'amazon api test aruns {}'.format(time.time())
+        order.name = 'amazon api testsss {}'.format(time.time())
         order.startDateTime = (int(time.time()) + 3600) * 1000
         order.endDateTime = (int(time.time()) + (3600 * 24)) * 1000  # unix time * 1000
 
@@ -71,6 +72,7 @@ class TestAmazonClient(TestCase):
         }
 
         new_order = b.create_order(hash_order)
+        new_order = json.loads(new_order)
         self.assertTrue('"msg_type": "success"', new_order)
 
     def test_update_order(self):

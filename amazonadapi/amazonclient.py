@@ -465,6 +465,7 @@ class AmazonClient:
 
   # make_request(method_type) --> pass in method_type
   def make_request(self, url, headers, method_type, data=None):
+    request_body = url, headers, data
     if method_type == 'GET':
         r = requests.get(url, headers=headers)
         results_json = r.json()
@@ -475,7 +476,6 @@ class AmazonClient:
             self.token = self.error_check_json(results_json)['access_token']
             # apply headers with new token, return response and response dict
             r, results_json = self.make_new_request(url, self.token, 'GET', headers)
-            request_body = url, headers
 
     elif method_type == 'POST':
         r = requests.post(url, headers=headers, verify=False, data=json.dumps(data))
@@ -485,7 +485,6 @@ class AmazonClient:
             self.token = self.error_check_json(results_json)['access_token']
             # apply headers with new token, return response and response dict
             r, results_json = self.make_new_request(url, self.token, 'POST', headers, data)
-            request_body = url, headers, data
 
     elif method_type == 'PUT':
         r = requests.put(url, headers=headers, verify=False, data=json.dumps(data))
@@ -495,7 +494,6 @@ class AmazonClient:
             self.token = self.error_check_json(results_json)['access_token']
             # apply headers with new token, return response and response dict
             r, results_json = self.make_new_request(url, self.token, 'PUT', headers, data)
-            request_body = url, headers, data
 
     # use results_json to create updated json dict
     response_json = self.generate_json_response(r, results_json, request_body)

@@ -80,12 +80,12 @@ class TestAmazonClient(TestCase):
         order = b.get_order('3135287630501')
         order = json.loads(order)
         updated_order = AmazonOrder()
-        updated_order.advertiserId = order['data'][0]['object']['advertiserId']['value']
-        updated_order.id = order['data'][0]['object']['id']['value']
-        updated_order.name = order['data'][0]['object']['name'] = 'amazon api updated test finalssss {}'.format(time.time())
-        updated_order.startDateTime = order['data'][0]['object']['startDateTime']
-        updated_order.endDateTime = order['data'][0]['object']['endDateTime']
-        updated_order.status = order['data'][0]['object']['deliveryActivationStatus']
+        updated_order.advertiserId = order['data']['object']['advertiserId']['value']
+        updated_order.id = order['data']['object']['id']['value']
+        updated_order.name = order['data']['object']['name'] = 'amazon api updated test finalssss {}'.format(time.time())
+        updated_order.startDateTime = order['data']['object']['startDateTime']
+        updated_order.endDateTime = order['data']['object']['endDateTime']
+        updated_order.status = order['data']['object']['deliveryActivationStatus']
 
         hash_order = {
             "object": {
@@ -141,12 +141,12 @@ class TestAmazonClient(TestCase):
         line_item = b.get_line_item('1590853620901')
         line_item = json.loads(line_item)
         updated_line_item = AmazonLineItem()
-        updated_line_item.orderId = line_item['data'][0]['object']['orderId']['value']
-        updated_line_item.id = line_item['data'][0]['object']['id']['value']
+        updated_line_item.orderId = line_item['data']['object']['orderId']['value']
+        updated_line_item.id = line_item['data']['object']['id']['value']
         updated_line_item.name = 'aruns test line item final!!!!'
-        updated_line_item.type = line_item['data'][0]['object']['type']
-        updated_line_item.startDateTime = line_item['data'][0]['object']['startDateTime']
-        updated_line_item.endDateTime = line_item['data'][0]['object']['endDateTime']
+        updated_line_item.type = line_item['data']['object']['type']
+        updated_line_item.startDateTime = line_item['data']['object']['startDateTime']
+        updated_line_item.endDateTime = line_item['data']['object']['endDateTime']
         updated_line_item.status = 'INACTIVE'
 
         hash_order = {

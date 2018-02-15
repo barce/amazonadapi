@@ -337,15 +337,13 @@ class AmazonClient:
     return r
 
   def error_check_json(self, results_json):
-    print('---error---')
-    print(results_json)
-    print('---error---')
     # if results_json['error']['httpStatusCode'] in ['401'] or results_json['code'] in ['401']:
     refresh_results_json = self.auto_refresh_token()
     return refresh_results_json
 
   # create response_json method to abstract away the creation of return response that matt wants
   def generate_json_response(self, r, results_json, request_body):
+
     response_json = {
       'response_code': r.status_code,
       'request_body': request_body
@@ -354,8 +352,7 @@ class AmazonClient:
     if r.status_code in [200, 201]:
       response_json['msg_type'] = 'success'
       response_json['msg'] = ''
-      response_json['data'] = results_json,
-
+      response_json['data'] = results_json
     else:
       response_json['msg_type'] = 'error'
       # display the error message that comes back from request

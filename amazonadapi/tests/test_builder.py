@@ -23,7 +23,7 @@ class TestAmazonClient(TestCase):
     def test_get_order(self):
         b = amazonadapi.AmazonClient()
         b.token = os.environ['AMZN_TOKEN']
-        order = b.get_order('6198741030901')
+        order = b.get_order('6817318700601')
         self.assertTrue('"msg_type": "success"', order)
 
     def test_get_orders(self):
@@ -55,7 +55,7 @@ class TestAmazonClient(TestCase):
         b.token = os.environ['AMZN_TOKEN']
         order = AmazonOrder()
         order.advertiserId = '3678742709207'
-        order.name = 'amazon api testsss {}'.format(time.time())
+        order.name = 'amazon api testssss {}'.format(time.time())
         order.startDateTime = (int(time.time()) + 3600) * 1000
         order.endDateTime = (int(time.time()) + (3600 * 24)) * 1000  # unix time * 1000
 
@@ -72,13 +72,12 @@ class TestAmazonClient(TestCase):
         }
 
         new_order = b.create_order(hash_order)
-        new_order = json.loads(new_order)
         self.assertTrue('"msg_type": "success"', new_order)
 
     def test_update_order(self):
         b = amazonadapi.AmazonClient()
         b.token = os.environ['AMZN_TOKEN']
-        order = b.get_order('5052675470301')
+        order = b.get_order('3135287630501')
         order = json.loads(order)
         updated_order = AmazonOrder()
         updated_order.advertiserId = order['data'][0]['object']['advertiserId']['value']
@@ -104,3 +103,69 @@ class TestAmazonClient(TestCase):
         }
         new_order = b.update_order(hash_order)
         self.assertTrue('"msg_type": "success"', new_order)
+
+    def test_create_line_item(self):
+        b = amazonadapi.AmazonClient()
+        b.token = os.environ['AMZN_TOKEN']
+        line_item = AmazonLineItem()
+        line_item.orderId = '3135287630501'
+        line_item.name = 'aruns test line item'
+        line_item.type = 'NON_GUARANTEED_DISPLAY'
+        line_item.startDateTime = 1518709035000
+        line_item.endDateTime = 1518791835000
+        line_item.status = 'INACTIVE'
+        line_item.budget = {
+            "amount": 3090.0,
+            "deliveryProfile": 'EVENLY'
+        }
+        hash_order = {
+            "object": {
+                    "orderId": {
+                        "value": line_item.orderId
+                    },
+                    "name": line_item.name,
+                    "type": line_item.type,
+                    "startDateTime": line_item.startDateTime,
+                    "endDateTime": line_item.endDateTime,
+                    "deliveryActivationStatus": line_item.status,
+                    "budget": line_item.budget
+                }
+            }
+
+        new_line_item = b.create_line_item(hash_order)
+        self.assertTrue('"msg_type": "success"', new_line_item)
+
+    def test_update_line_item(self):
+        b = amazonadapi.AmazonClient()
+        b.token = os.environ['AMZN_TOKEN']
+        line_item = b.get_line_item('1590853620901')
+        line_item = json.loads(line_item)
+        updated_line_item = AmazonLineItem()
+        updated_line_item.orderId = line_item['data'][0]['object']['orderId']['value']
+        updated_line_item.id = line_item['data'][0]['object']['id']['value']
+        updated_line_item.name = 'aruns test line item final!!!!'
+        updated_line_item.type = line_item['data'][0]['object']['type']
+        updated_line_item.startDateTime = line_item['data'][0]['object']['startDateTime']
+        updated_line_item.endDateTime = line_item['data'][0]['object']['endDateTime']
+        updated_line_item.status = 'INACTIVE'
+
+        hash_order = {
+            "object": {
+                "orderId": {
+                    "value": updated_line_item.orderId
+                },
+                "id": {
+                    "value": updated_line_item.id
+                },
+                "name": updated_line_item.name,
+                "type": updated_line_item.type,
+                "startDateTime": updated_line_item.startDateTime,
+                "endDateTime": updated_line_item.endDateTime,
+                "deliveryActivationStatus": updated_line_item.status
+            }
+        }
+
+        new_line_item = b.update_line_item(hash_order)
+        self.assertTrue('"msg_type": "success"', new_line_item)
+
+

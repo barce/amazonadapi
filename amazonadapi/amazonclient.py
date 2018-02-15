@@ -302,20 +302,6 @@ class AmazonClient:
 
     self.data = order
 
-    #     self.data = {"object": {
-    #         "advertiserId": {
-    #             "value": order.advertiserId
-    #         },
-    #         "name": order.name,
-    #         "startDateTime": order.startDateTime,
-    #         "endDateTime": order.endDateTime,
-    #         "deliveryActivationStatus": order.status
-    #         }
-    #     }
-
-    # response = requests.post(url, headers=headers, verify=False, data=json.dumps(self.data))
-    # results_json = response.json()
-
     r = self.make_request(url, headers, 'POST', self.data)
     return r
 
@@ -326,72 +312,19 @@ class AmazonClient:
 
 
     self.data = order
-    #     self.data = {"object": {
-    #         "id": {
-    #             "value": order.id
-    #         },
-    #         "advertiserId": {
-    #             "value": order.advertiserId
-    #         },
-    #         "name": order.name,
-    #         "startDateTime": order.startDateTime,
-    #         "endDateTime": order.endDateTime,
-    #         "deliveryActivationStatus": order.status
-    #         }
-    #     }
 
-    response = requests.put(url, headers=headers, verify=False, data=json.dumps(self.data))
-    print(response)
-    print(response.url)
-    print(response.text)
-    print(response.json())
-    results_json = response.json()
-    try:
-      if 'error' in results_json:
-        self.error_check_json(results_json)
-        return results_json
-    except Exception as e:
-      print("expected result")
-      return e
-
-    return results_json
-
+    r = self.make_request(url, headers, 'PUT', self.data)
+    return r
 
   def create_line_item(self, line_item):
     url = "https://" + self.host + "/da/v1/line-items"
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
 
     self.data = line_item
-    #     {"object": {
-    #         "orderId": {
-    #             "value": line_item.orderId
-    #         },
-    #         "name": line_item.name,
-    #         "type": line_item.type,
-    #         "startDateTime": line_item.startDateTime,
-    #         "endDateTime": line_item.endDateTime,
-    #         "deliveryActivationStatus": line_item.status,
-    #         "budget" : line_item.budget,
-    #         "deliveryCaps" : line_item.deliveryCaps
-    #         }
-    #     }
 
-    print(json.dumps(self.data))
-    print("--- posting data ---")
-    response = requests.post(url, headers=headers, verify=False, data=json.dumps(self.data))
-    print(response)
-    print(response.url)
-    print(response.text)
-    print(response.json())
-    results_json = response.json()
-    try:
-      if 'error' in results_json:
-        self.error_check_json(results_json)
-        return results_json
-    except Exception as e:
-      print("expected result")
-      return e
-    return results_json
+    r = self.make_request(url, headers, 'POST', self.data)
+    return r
+
 
   def update_line_item(self, line_item):
     # url = "https://" + self.host + "/da/v1/line-items/" + line_item.id # <-- expected behavior for update
@@ -400,40 +333,8 @@ class AmazonClient:
 
     self.data = line_item
 
-    #     self.data = {"object": {
-    #         "id": {
-    #             "value": line_item.id
-    #         },
-    #         "orderId": {
-    #             "value": line_item.orderId
-    #         },
-    #         "name": line_item.name,
-    #         "type": line_item.type,
-    #         "startDateTime": line_item.startDateTime,
-    #         "endDateTime": line_item.endDateTime,
-    #         "deliveryActivationStatus": line_item.status,
-    #         "budget" : line_item.budget,
-    #         "deliveryCaps" : line_item.deliveryCaps
-    #         }
-    #     }
-
-    print(json.dumps(self.data))
-    print("--- posting data ---")
-    response = requests.put(url, headers=headers, verify=False, data=json.dumps(self.data))
-    print(response)
-    print(response.url)
-    print(response.text)
-    print(response.json())
-    results_json = response.json()
-    try:
-      if 'error' in results_json:
-        self.error_check_json(results_json)
-        return results_json
-    except Exception as e:
-      print("expected result")
-      return e
-
-    return results_json
+    r = self.make_request(url, headers, 'PUT', self.data)
+    return r
 
   def error_check_json(self, results_json):
     print('---error---')

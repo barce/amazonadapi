@@ -35,7 +35,7 @@ class TestAmazonClient(TestCase):
     def test_get_line_item(self):
         b = amazonadapi.AmazonClient()
         b.token = os.environ['AMZN_TOKEN']
-        line_item = b.get_line_item('1590853620901')
+        line_item = b.get_line_item('4979603200301')
         self.assertTrue('"msg_type": "success"', line_item)
 
     def test_get_line_items(self):

@@ -183,7 +183,7 @@ class AmazonClient:
 
       headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
 
-      r = requests.get(url, headers=headers)
+      r = self.make_request(url, headers, 'GET')
       try:
         print(r.headers['Link'])
         self.next_page_url = r.headers['Link']
@@ -195,7 +195,6 @@ class AmazonClient:
         matches = p.findall(self.next_page_url)
         self.page_token = matches[0]
 
-      r = self.make_request(url, headers, 'GET')
 
     self.page_token = None
     self.page_size = None
@@ -220,7 +219,7 @@ class AmazonClient:
       else:
         url = "https://" + self.host + "/da/v1/advertisers/" + str(ad_id) + "/orders?page_token=" + self.page_token
       headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
-      r = requests.get(url, headers=headers)
+      r = self.make_request(url, headers, 'GET')
       try:
         self.next_page_url = r.headers['Link']
       except:
@@ -231,7 +230,6 @@ class AmazonClient:
         matches = p.findall(self.next_page_url)
         self.page_token = matches[0]
 
-      r = self.make_request(url, headers, 'GET')
 
     self.page_token = None
     self.page_size = None
@@ -271,7 +269,7 @@ class AmazonClient:
         url = "https://" + self.host + "/da/v1/orders/" + order_id + "/line-items?page_token=" + self.page_token
 
       headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
-      r = requests.get(url, headers=headers)
+      r = self.make_request(url, headers, 'GET')
 
       try:
         self.next_page_url = r.headers['Link']
@@ -283,7 +281,6 @@ class AmazonClient:
         matches = p.findall(self.next_page_url)
         self.page_token = matches[0]
 
-      r = self.make_request(url, headers, 'GET')
 
     self.page_token = None
     self.page_size = None
@@ -364,34 +361,13 @@ class AmazonClient:
   # make_request(method_type) --> pass in method_type
   def make_request(self, url, headers, method_type, data=None):
     request_body = url, headers, data
-    if method_type == 'GET':
-        r = requests.get(url, headers=headers)
-        results_json = r.json()
-        # error checking
-        # if request not successful and it's a 400 error, refresh access token
-        if r.status_code in [400, 401]:
-            # refresh api token
-            self.token = self.error_check_json(results_json)['access_token']
-            # apply headers with new token, return response and response dict
-            r, results_json = self.make_new_request(url, self.token, 'GET', headers)
+    r, results_json = self.make_new_request(url, self.token, method_type, headers, data)
 
-    elif method_type == 'POST':
-        r = requests.post(url, headers=headers, verify=False, data=json.dumps(data))
-        results_json = r.json()
-        if r.status_code in [400, 401]:
-            # refresh api token
-            self.token = self.error_check_json(results_json)['access_token']
-            # apply headers with new token, return response and response dict
-            r, results_json = self.make_new_request(url, self.token, 'POST', headers, data)
-
-    elif method_type == 'PUT':
-        r = requests.put(url, headers=headers, verify=False, data=json.dumps(data))
-        results_json = r.json()
-        if r.status_code in [400, 401]:
-            # refresh api token
-            self.token = self.error_check_json(results_json)['access_token']
-            # apply headers with new token, return response and response dict
-            r, results_json = self.make_new_request(url, self.token, 'PUT', headers, data)
+    if r.status_code in [400, 401]:
+        # refresh access token
+        self.token = self.error_check_json(results_json)['access_token']
+        # apply headers with new token, return response and response dict
+        r, results_json = self.make_new_request(url, self.token, method_type, headers)
 
     # use results_json to create updated json dict
     response_json = self.generate_json_response(r, results_json, request_body)

@@ -81,11 +81,11 @@ class AmazonClient:
     self.profile_id = os.environ['AMZN_DEFAULT_PROFILE_ID']
 
     try:
-        self.refresh_token = os.environ['AMZN_REFRESH_TOKEN']
+      self.refresh_token = os.environ['AMZN_REFRESH_TOKEN']
     except KeyError as e:
-        print("error missing:")
-        print(e)
-    
+      print("error missing:")
+      print(e)
+
     self.region_list = {"UK": "advertising-api-eu.amazon.com", "IN": "advertising-api-eu.amazon.com", "US": "advertising-api.amazon.com", "JP": "advertising-api-fe.amazon.com"}
     try:
       self.host = self.region_list[os.environ['AMZN_REGION']]
@@ -143,8 +143,6 @@ class AmazonClient:
         i_sentinel = 0
     return results_json
 
-      
-
   def set_region(self, region='US'):
     self.region = region
     try:
@@ -158,19 +156,11 @@ class AmazonClient:
   def get_profiles(self):
     url = "https://" + self.host + "/v1/profiles"
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token}
-    r = requests.get(url, headers=headers)
-    results_json = r.json()
+    # r = requests.get(url, headers=headers)
+    # results_json = r.json()
 
-    print(results_json)
-    
-    try:
-      if 'error' in results_json:
-        self.error_check_json(results_json)
-    except Exception as e:
-      print("expected result")
-      return e
-
-    return results_json
+    r = self.make_request(url, headers, 'GET')
+    return r
 
   # -H Authorization: Bearer self.token
   # -H Host: advertising-api.amazon
@@ -180,6 +170,7 @@ class AmazonClient:
   def get_advertisers(self):
     i_sentinel = 1
     ids = []
+    response_json = {}
     while i_sentinel == 1:
       if self.page_token == None:
         if self.page_size == None:
@@ -189,51 +180,35 @@ class AmazonClient:
           self.page_size = None
       else:
         url = "https://" + self.host + "/da/v1/advertisers?page_token=" + self.page_token
-      
+
       headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
-  
-      print(url)
-      print(headers)
-      r = requests.get(url, headers=headers)
-      print(r)
+
+      r = self.make_request(url, headers, 'GET')
       try:
         print(r.headers['Link'])
         self.next_page_url = r.headers['Link']
       except:
         i_sentinel = 0
-  
+
       if self.next_page_url != None:
         p = re.compile('.*page_token=(.*)>')
         matches = p.findall(self.next_page_url)
         self.page_token = matches[0]
 
-      results_json = r.json()
-      json_ids = results_json['object']['objects']
-      for json_id in json_ids:
-        print(json_id)
-        ids.append(json_id['id']['value'])
-  
-      try:  
-        if 'error' in results_json:
-          self.error_check_json(results_json)
-          return results_json
-      except Exception as e:
-        print("expected result")
-        return e
 
     self.page_token = None
     self.page_size = None
-
-    return ids
+    return r
 
   # -H Authorization: Bearer self.token
   # -H Host: advertising-api.amazon
   # -H Amazon-Advertising-API-Scope: PROFILE_ID
   # -H Content-Type: application/json
   # url: https://advertising-api.amazon.com/da/v1/advertisers/AD_ID/orders
+
   def get_orders(self, ad_id):
     i_sentinel = 1
-    ids = []
+
     while i_sentinel == 1:
       if self.page_token == None:
         if self.page_size == None:
@@ -243,37 +218,23 @@ class AmazonClient:
           self.page_size = None
       else:
         url = "https://" + self.host + "/da/v1/advertisers/" + str(ad_id) + "/orders?page_token=" + self.page_token
-          
       headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
-      r = requests.get(url, headers=headers)
+      r = self.make_request(url, headers, 'GET')
       try:
         self.next_page_url = r.headers['Link']
       except:
         i_sentinel = 0
-  
+
       if self.next_page_url != None:
         p = re.compile('.*page_token=(.*)>')
         matches = p.findall(self.next_page_url)
         self.page_token = matches[0]
 
-      results_json = r.json()
-      print(results_json)
-      json_ids = results_json['object']['objects']
-      for json_id in json_ids:
-        print(json_id)
-        ids.append(json_id['id']['value'])
-
-      try:
-        if 'error' in results_json:
-          self.error_check_json(results_json)
-          return results_json
-      except Exception as e:
-        print("expected result")
-        return e
 
     self.page_token = None
     self.page_size = None
-    return ids
+    return r
+
 
   # -H Authorization: Bearer self.token
   # -H Host: advertising-api.amazon
@@ -281,23 +242,12 @@ class AmazonClient:
   # -H Content-Type: application/json
   # url: https://advertising-api.amazon.com/da/v1/orders/ORDER_ID
   def get_order(self, order_id):
+
     url = "https://" + self.host + "/da/v1/orders/" + order_id
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
-    r = requests.get(url, headers=headers)
-    print(r)
-    print(r.url)
-    print(r.text)
-    results_json = r.json()
 
-    try:
-      if 'error' in results_json:
-        self.error_check_json(results_json)
-        return results_json
-    except Exception as e:
-      print("expected result")
-      return e
-
-    return results_json
+    r = self.make_request(url, headers, 'GET')
+    return r
 
   # -H Authorization: Bearer self.token
   # -H Host: advertising-api.amazon
@@ -307,96 +257,51 @@ class AmazonClient:
   def get_line_items(self, order_id):
     i_sentinel = 1
     ids = []
+    response_json = {}
     while i_sentinel == 1:
       if self.page_token == None:
         if self.page_size == None:
           url = "https://" + self.host + "/da/v1/orders/" + order_id + "/line-items"
-        else: 
+        else:
           url = "https://" + self.host + "/da/v1/orders/" + order_id + "/line-items?page_size=" + str(self.page_size)
           self.page_size = None
       else:
         url = "https://" + self.host + "/da/v1/orders/" + order_id + "/line-items?page_token=" + self.page_token
-        
+
       headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
-      r = requests.get(url, headers=headers)
+      r = self.make_request(url, headers, 'GET')
 
       try:
         self.next_page_url = r.headers['Link']
       except:
         i_sentinel = 0
-  
+
       if self.next_page_url != None:
         p = re.compile('.*page_token=(.*)>')
         matches = p.findall(self.next_page_url)
         self.page_token = matches[0]
 
-      results_json = r.json()
-      json_ids = results_json['object']['objects']
-      for json_id in json_ids:
-        print(json_id)
-        ids.append(json_id['id']['value'])
-
-      try:  
-        if 'error' in results_json:
-          self.error_check_json(results_json)
-          return results_json
-      except Exception as e:
-        print("expected result")
-        return e
-
 
     self.page_token = None
     self.page_size = None
-    return ids
+    return r
 
   def get_line_item(self, line_item_id):
     url = "https://" + self.host + "/da/v1/line-items/" + line_item_id
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
-    r = requests.get(url, headers=headers)
-    results_json = r.json()
-    try:
-      if 'error' in results_json:
-        self.error_check_json(results_json)
-        return results_json
-    except Exception as e:
-        print("expected result")
-        return e
 
-    return results_json
-      
+    r = self.make_request(url, headers, 'GET')
+    return r
+
   def create_order(self, order):
     url = "https://" + self.host + "/da/v1/orders"
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
 
     self.data = order
 
-#     self.data = {"object": {
-#         "advertiserId": {
-#             "value": order.advertiserId
-#         },
-#         "name": order.name,
-#         "startDateTime": order.startDateTime,
-#         "endDateTime": order.endDateTime,
-#         "deliveryActivationStatus": order.status
-#         }
-#     }
-    
-    response = requests.post(url, headers=headers, verify=False, data=json.dumps(self.data))
-    print(response)
-    print(response.url)
-    print(response.text)
-    print(response.json())
-    results_json = response.json()
+    r = self.make_request(url, headers, 'POST', self.data)
+    return r
 
-    try:
-      if 'error' in results_json:
-        self.error_check_json(results_json)
-        return results_json
-    except Exception as e:
-        print("expected result")
-        return e
-
-    return response.json()
 
   def update_order(self, order):
     url = "https://" + self.host + "/da/v1/orders"
@@ -404,73 +309,18 @@ class AmazonClient:
 
 
     self.data = order
-#     self.data = {"object": {
-#         "id": {
-#             "value": order.id
-#         },
-#         "advertiserId": {
-#             "value": order.advertiserId
-#         },
-#         "name": order.name,
-#         "startDateTime": order.startDateTime,
-#         "endDateTime": order.endDateTime,
-#         "deliveryActivationStatus": order.status
-#         }
-#     }
- 
-    response = requests.put(url, headers=headers, verify=False, data=json.dumps(self.data))
-    print(response)
-    print(response.url)
-    print(response.text)
-    print(response.json())
-    results_json = response.json()
-    try:
-      if 'error' in results_json:
-        self.error_check_json(results_json)
-        return results_json
-    except Exception as e:
-      print("expected result")
-      return e
 
-    return results_json
+    r = self.make_request(url, headers, 'PUT', self.data)
+    return r
 
-      
   def create_line_item(self, line_item):
     url = "https://" + self.host + "/da/v1/line-items"
     headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.token, 'Host': self.host, 'Amazon-Advertising-API-Scope': self.profile_id}
 
     self.data = line_item
-#     {"object": {
-#         "orderId": {
-#             "value": line_item.orderId
-#         },
-#         "name": line_item.name,
-#         "type": line_item.type,
-#         "startDateTime": line_item.startDateTime,
-#         "endDateTime": line_item.endDateTime,
-#         "deliveryActivationStatus": line_item.status,
-#         "budget" : line_item.budget,
-#         "deliveryCaps" : line_item.deliveryCaps
-#         }
-#     }
 
-    print(json.dumps(self.data))
-    print("--- posting data ---")
-    response = requests.post(url, headers=headers, verify=False, data=json.dumps(self.data))
-    print(response)
-    print(response.url)
-    print(response.text)
-    print(response.json())
-    results_json = response.json()
-    try:  
-      if 'error' in results_json:
-        self.error_check_json(results_json)
-        return results_json
-    except Exception as e:
-      print("expected result")
-      return e
-    return results_json
-
+    r = self.make_request(url, headers, 'POST', self.data)
+    return r
 
 
   def update_line_item(self, line_item):
@@ -480,47 +330,59 @@ class AmazonClient:
 
     self.data = line_item
 
-#     self.data = {"object": {
-#         "id": {
-#             "value": line_item.id
-#         },
-#         "orderId": {
-#             "value": line_item.orderId
-#         },
-#         "name": line_item.name,
-#         "type": line_item.type,
-#         "startDateTime": line_item.startDateTime,
-#         "endDateTime": line_item.endDateTime,
-#         "deliveryActivationStatus": line_item.status,
-#         "budget" : line_item.budget,
-#         "deliveryCaps" : line_item.deliveryCaps
-#         }
-#     }
+    r = self.make_request(url, headers, 'PUT', self.data)
+    return r
 
-    print(json.dumps(self.data))
-    print("--- posting data ---")
-    response = requests.put(url, headers=headers, verify=False, data=json.dumps(self.data))
-    print(response)
-    print(response.url)
-    print(response.text)
-    print(response.json())
-    results_json = response.json()
-    try:
-      if 'error' in results_json:
-        self.error_check_json(results_json)
-        return results_json
-    except Exception as e:
-      print("expected result")
-      return e
-
-    return results_json
-
-      
   def error_check_json(self, results_json):
-    print('---error---')
-    print(results_json)
-    print('---error---')
-    if results_json['error']['httpStatusCode'] == '401':
-      refresh_results_json = self.auto_refresh_token()
-    return results_json
+    # if results_json['error']['httpStatusCode'] in ['401'] or results_json['code'] in ['401']:
+    refresh_results_json = self.auto_refresh_token()
+    return refresh_results_json
 
+  # create response_json method to abstract away the creation of return response that matt wants
+  def generate_json_response(self, r, results_json, request_body):
+
+    response_json = {
+      'response_code': r.status_code,
+      'request_body': request_body
+    }
+    # if request is successful, ensure msg_type is success
+    if r.status_code in [200, 201]:
+      response_json['msg_type'] = 'success'
+      response_json['msg'] = ''
+      response_json['data'] = results_json
+    else:
+      response_json['msg_type'] = 'error'
+      # display the error message that comes back from request
+      response_json['msg'] = results_json['error']
+      response_json['data'] = results_json['error']
+
+    return response_json
+
+  # make_request(method_type) --> pass in method_type
+  def make_request(self, url, headers, method_type, data=None):
+    request_body = url, headers, data
+    r, results_json = self.make_new_request(url, self.token, method_type, headers, data)
+
+    if r.status_code in [400, 401]:
+        # refresh access token
+        self.token = self.error_check_json(results_json)['access_token']
+        # apply headers with new token, return response and response dict
+        r, results_json = self.make_new_request(url, self.token, method_type, headers)
+
+    # use results_json to create updated json dict
+    response_json = self.generate_json_response(r, results_json, request_body)
+
+    return json.dumps(response_json)
+
+  def make_new_request(self, url, token, method_type, headers, data=None):
+
+    # modify headers with new access token
+    headers['Authorization'] = 'Bearer ' + token
+    if method_type == 'GET':
+      r = requests.get(url, headers=headers)
+    if method_type == 'POST':
+      r = requests.post(url, headers=headers, verify=False, data=json.dumps(data))
+    if method_type == 'PUT':
+      r = requests.put(url, headers=headers, verify=False, data=json.dumps(data))
+    results_json = r.json()
+    return r, results_json

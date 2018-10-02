@@ -79,6 +79,7 @@ class AmazonClient:
     # self.auth_url = "https://www.amazon.com/ap/oa?client_id=" + self.client_id + "&scope=advertising::campaign_management&repsonse_type=code&redirect_url=https%3A//www.accuenplatform.com/accounts/login/%3Fnext%3D/backstage/api/advertiser"
     self.auth_url = os.environ['AMZN_AUTH_URL']
     self.profile_id = os.environ['AMZN_DEFAULT_PROFILE_ID']
+    self.redirect_uri="https://www.accuenplatform.com/accounts/login/%3Fnext%3D/backstage/api/advertiser"
 
     try:
         self.refresh_token = os.environ['AMZN_REFRESH_TOKEN']
@@ -94,7 +95,7 @@ class AmazonClient:
 
   def connect(self):
     get_token_url = "https://api.amazon.com/auth/o2/token"
-    payload = "grant_type=authorization_code&code=" + self.amzn_code + "&redirect_uri=https%3A//www.accuenplatform.com/accounts/login/%3Fnext%3D/backstage/api/advertiser&client_id=" + self.client_id + "&client_secret=" + self.client_secret
+    payload = "grant_type=authorization_code&code=" + self.amzn_code + "&redirect_uri=" + self.redirect_uri + "&client_id=" + self.client_id + "&client_secret=" + self.client_secret
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     print(get_token_url)
     print(payload)

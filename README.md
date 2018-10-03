@@ -2,14 +2,14 @@
 Client for the Amazon Ad API
 
 Install:
-l. pip install amazonadapi
-l. Set environment variables:
-   l. export AMZN_REFRESH_TOKEN='YOUR_REFRESH_TOKEN'
-   l. export AMZN_AD_CLIENT_SECRET='YOUR_SECRET'
-   l. export AMZN_AUTH_URL='AMZN_AUTH_URL'
-   l. export AMZN_DEFAULT_PROFILE_ID='PROFILE_ID'
-   l. export AMZN_REGION='AMZN_REGION'
-   l. export AMZN_TOKEN='YOUR_TOKEN'
+1. pip install amazonadapi
+1. Set environment variables:
+   1. export AMZN_REFRESH_TOKEN='YOUR_REFRESH_TOKEN'
+   1. export AMZN_AD_CLIENT_SECRET='YOUR_SECRET'
+   1. export AMZN_AUTH_URL='AMZN_AUTH_URL'
+   1. export AMZN_DEFAULT_PROFILE_ID='PROFILE_ID'
+   1. export AMZN_REGION='AMZN_REGION'
+   1. export AMZN_TOKEN='YOUR_TOKEN'
 
 * [Issues](https://github.com/barce/amazonadapi/issues)
 

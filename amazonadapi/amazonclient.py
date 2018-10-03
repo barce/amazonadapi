@@ -72,6 +72,7 @@ class AmazonClient:
   page_token = None
   page_size = None
   next_page_url = None
+  redirect_uri = None
 
   def __init__(self):
     self.client_id = os.environ['AMZN_AD_CLIENT_ID']

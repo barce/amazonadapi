@@ -92,7 +92,7 @@ line_item.status = 'INACTIVE'
 line_item.budget['amount'] = 100
 line_item.budget['deliveryProfile'] = 'FRONTLOADED'
 line_item.budget['deliveryBuffer'] = 1
-```python
+```
 
 ## recurrenceTypes: DAILY, MONTHLY, LIFETIME
 ```python

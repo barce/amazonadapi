@@ -2,17 +2,19 @@
 Client for the Amazon Ad API
 
 # Notes:
-# 
-# The Amazon Ad API pulls only the IDs for each ad tech object.
-# E.G. client.get_orders('AD_ID') just returns the order IDs.
-# Take the array of order IDs and call client.get_order('ORDER_ID').
-# 
+
+The Amazon Ad API pulls only the IDs for each ad tech object.
+E.G. client.get_orders('AD_ID') just returns the order IDs.
+Take the array of order IDs and call client.get_order('ORDER_ID').
+
+```python
 order_ids = client.get_orders('AD_ID')
 for order_id in order_ids:
-  order = client.get_order(order_id)
+  order = client.get_order(order_id)`
+```
 
-
-# FOR ETL or automated job servers, e.g. SMP, use the following to initialize:
+## FOR ETL or automated job servers, e.g. SMP, use the following to initialize:
+```python
 from amazonadapi import AmazonClient
 import os
 client = AmazonClient()
@@ -24,13 +26,16 @@ client.profile_id = 'BE_SURE_TO_SET_THIS_FOR_YOUR_ORGANIZATION'
 client.get_advertisers()
 client.get_orders('AD_ID')
 client.get_order('ORDER_ID')
+```
 
-# Sample code for using browser and command-line to auth:
+## Sample code for using browser and command-line to auth:
+```python
 from amazonadapi import AmazonClient
 client = AmazonClient()
 client.cli_auth_dance()
 client.get_profiles()
 client.profile_id = 'BE_SURE_TO_SET_THIS'
+```
 
 
 # create an order

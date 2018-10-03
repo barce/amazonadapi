@@ -51,7 +51,8 @@ client.profile_id = 'BE_SURE_TO_SET_THIS'
 ```
 
 
-# create an order
+## create an order
+```python
 order = AmazonOrder()
 
 order.advertiserId = '3678742709207'
@@ -71,14 +72,18 @@ hash_order = {"object": {
 }
 
 created_order = client.create_order(hash_order)
+```
 
-# create a line item
+## create a line item
+```python
 line_item = AmazonLineItem()
 line_item.orderId = 'ORDER_ID'
 line_item.advertiserId = 'AD_ID'
 line_item.name = 'Test API Line Item Creation'
+```
 
-# types: NON_GUARANTEED_DISPLAY,NON_GUARANTEED_MOBILE_APP,NON_GUARANTEED_VIDEO
+## types: NON_GUARANTEED_DISPLAY,NON_GUARANTEED_MOBILE_APP,NON_GUARANTEED_VIDEO
+```python
 line_item.type = 'NON_GUARANTEED_DISPLAY'
 
 line_item.startDateTime = 1506873006000
@@ -87,8 +92,10 @@ line_item.status = 'INACTIVE'
 line_item.budget['amount'] = 100
 line_item.budget['deliveryProfile'] = 'FRONTLOADED'
 line_item.budget['deliveryBuffer'] = 1
+```python
 
-# recurrenceTypes: DAILY, MONTHLY, LIFETIME
+## recurrenceTypes: DAILY, MONTHLY, LIFETIME
+```python
 line_item.deliveryCaps.append({'amount': 0.9, 'recurrenceType': 'DAILY'})
 
 hashline_item = {"object": {
@@ -111,4 +118,5 @@ hashline_item = {"object": {
 
 result = client.create_line_item(hashline_item)
 client.create_line_item(hashline_item)
+```
 

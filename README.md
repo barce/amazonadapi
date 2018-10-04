@@ -1,8 +1,9 @@
 # amazonadapi
 
-![downloads](https://img.shields.io/badge/downloads-2737%2Fmonth-brightgreen.svg) 
-[![GitHub issues](https://img.shields.io/github/issues/barce/amazonadapi.svg)](https://github.com/barce/amazonadapi/issues) 
-[![GitHub license](https://img.shields.io/github/license/barce/amazonadapi.svg)](https://github.com/barce/amazonadapi/blob/master/LICENSE)
+[![PyPI version](https://beta.photohunters.co/amazonadapi.svg)](https://pypi.org/project/amazonadapi/)
+![downloads](https://beta.photohunters.co/amazonadapi_downloads.svg) 
+[![GitHub issues](https://beta.photohunters.co/amazonadapi_issues.svg)](https://github.com/barce/amazonadapi/issues) 
+[![GitHub license](https://beta.photohunters.co/amazonadapi_license.svg)](https://github.com/barce/amazonadapi/blob/master/LICENSE)
 
  
 

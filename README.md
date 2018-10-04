@@ -1,4 +1,7 @@
 # amazonadapi
+
+![downloads](https://img.shields.io/badge/downloads-16k-blue.svg)
+
 Client for the Amazon Ad API
 
 Install:

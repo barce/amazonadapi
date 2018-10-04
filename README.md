@@ -128,3 +128,10 @@ result = client.create_line_item(hashline_item)
 client.create_line_item(hashline_item)
 ```
 
+## Maintenance of this package
+
+Badges
+ https://badge.fury.io/for/py 
+ https://shield.io
+
+Use twine and latest pip.

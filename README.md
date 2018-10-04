@@ -1,6 +1,10 @@
 # amazonadapi
 
-![downloads](https://img.shields.io/badge/downloads-16k-blue.svg)
+![downloads](https://img.shields.io/badge/downloads-2737%2Fmonth-brightgreen.svg) 
+[![GitHub issues](https://img.shields.io/github/issues/barce/amazonadapi.svg)](https://github.com/barce/amazonadapi/issues) 
+[![GitHub license](https://img.shields.io/github/license/barce/amazonadapi.svg)](https://github.com/barce/amazonadapi/blob/master/LICENSE)
+
+ 
 
 Client for the Amazon Ad API
 

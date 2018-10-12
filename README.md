@@ -132,6 +132,6 @@ client.create_line_item(hashline_item)
 
 Badges
  https://badge.fury.io/for/py 
- https://shield.io
+ https://shields.io
 
 Use twine and latest pip.

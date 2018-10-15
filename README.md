@@ -130,8 +130,9 @@ client.create_line_item(hashline_item)
 
 ## Maintenance of this package
 
-Badges
+* The Amazon Advertising API: https://advertising.amazon.com/API
+* Badges
  https://badge.fury.io/for/py 
  https://shields.io
+* Use twine and latest pip.
 
-Use twine and latest pip.

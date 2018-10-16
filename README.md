@@ -135,4 +135,15 @@ client.create_line_item(hashline_item)
  https://badge.fury.io/for/py 
  https://shields.io
 * Use twine and latest pip.
-
+* More info on pypi.org: https://pypi.org/project/amazonadapi/
+* Project statistics and SQL: https://console.cloud.google.com/bigquery?project=pypi-data-217916&folder&organizationId
+```sql
+SELECT COUNT(*) AS num_downloads
+FROM `the-psf.pypi.downloads*`
+WHERE file.project = 'amazonadapi'
+  -- Only query the last 30 days of history
+  AND _TABLE_SUFFIX
+    BETWEEN FORMAT_DATE(
+      '%Y%m%d', DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY))
+    AND FORMAT_DATE('%Y%m%d', CURRENT_DATE())
+```

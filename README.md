@@ -1,12 +1,5 @@
 # amazonadapi
 
-[![PyPI version](https://beta.photohunters.co/amazonadapi.svg)](https://pypi.org/project/amazonadapi/)
-![downloads](https://beta.photohunters.co/amazonadapi_3k_downloads.svg) 
-[![GitHub issues](https://img.shields.io/badge/issues-3-red.svg)](https://github.com/barce/amazonadapi/issues) 
-[![GitHub license](https://beta.photohunters.co/amazonadapi_license.svg)](https://github.com/barce/amazonadapi/blob/master/LICENSE)
-
- 
-
 Client for the Amazon Ad API
 
 Install:

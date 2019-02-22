@@ -1,6 +1,7 @@
 # amazonadapi
 
 Client for the Amazon Ad API
+[![PyPI version](https://badge.fury.io/py/amazonadapi.svg)](https://badge.fury.io/py/amazonadapi)
 
 Install:
 1. pip install amazonadapi

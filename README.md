@@ -2,6 +2,8 @@
 
 Client for the Amazon Ad API
 
+WARNING: This code is no longer maintained nor useable with the current Amazon Ad API.
+
 [![PyPI version](https://badge.fury.io/py/amazonadapi.svg)](https://badge.fury.io/py/amazonadapi)
 
 Install:
